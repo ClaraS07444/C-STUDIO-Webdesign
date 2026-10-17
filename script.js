@@ -1,39 +1,35 @@
 /* ======================================================================
    C AGENCY · SCRIPT.JS
-   Funktionsübersicht
-   01 Konfiguration und Utilities
-   02 Dialog- und Scroll-Lock-Helfer
-   03 Mobile Navigation
-   04 3D-Projektkarussell
-   05 Zentraler Projektfinder
-   06 FAQ-Accordion
-   07 Concept-Detailansicht und Rechtliches
-   08 GSAP-Animationen und Funkelstern
-   09 App-Initialisierung
+   01 Konfiguration / Utilities
+   02 Dialog-Helfer / Mobile Navigation
+   03 6-teiliges 3D-Karussell
+   04 Angebotsfragen im schwarzen Inline-Kasten
+   05 Horizontale Referenz- und Concept-Scroller
+   06 FAQ / Concept- und Rechtstext-Dialoge
+   07 GSAP / Reduced Motion
+   08 App-Initialisierung
 
-   Architekturhinweis:
-   - Jede Komponente besitzt eine eigene init-Funktion.
-   - Einfache Hover-/Fokuszustände bleiben in style.css.
-   - Alle Inhalte bleiben ohne GSAP sichtbar und bedienbar.
-   - Der Projektfinder ist eine einzige DOM-/Formularinstanz.
+   Architektur:
+   - Vanilla JavaScript übernimmt sämtliche Kernfunktionen.
+   - GSAP/ScrollTrigger werden ausschließlich für kontrollierte komplexere
+     Bewegungen verwendet. Fällt das CDN aus, bleibt alles nutzbar.
+   - Die Angebotsfragen existieren genau einmal und bleiben im selben Kasten.
    ====================================================================== */
 
 (() => {
   "use strict";
 
-  /* ====================================================================
-     01 · KONFIGURATION UND UTILITIES
-     ==================================================================== */
-
-  // Progressive Enhancement früh kennzeichnen. Bei blockiertem JS bleibt
-  // die im CSS definierte Scroll-Snap-Version des Karussells aktiv.
   document.documentElement.classList.replace("no-js", "js");
 
+  /* ====================================================================
+     01 · KONFIGURATION UND UTILITIES
+     LAUNCH: Erst nach Auswahl eines Backends beide leeren Werte ersetzen.
+     demoMode muss erst dann auf false gesetzt werden. Ohne Konfiguration
+     validiert die Website vollständig, behauptet aber keinen Versand.
+     ==================================================================== */
   const FORM_CONFIG = Object.freeze({
-    // LAUNCH: endpoint nach Auswahl des Formularbackends eintragen.
-    endpoint: "",
-    // Solange true, wird nichts übertragen. Die Success-Ansicht weist
-    // ausdrücklich auf den Demo-Status hin und täuscht keinen Versand vor.
+    endpoint: "", // REPLACE: z. B. sicherer eigener Formular-Endpoint
+    recipientEmail: "", // REPLACE: finale geschäftliche Empfängeradresse
     demoMode: true,
     requestTimeoutMs: 12000
   });
@@ -42,21 +38,17 @@
     cardCount: 6,
     angleStep: 60,
     dragDegreesPerPixel: 0.22,
-    dragThresholdPx: 38,
+    dragThresholdPx: 34,
     wheelThreshold: 12,
-    snapDuration: 0.75
+    snapDuration: 0.72
   });
 
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
   const modulo = (value, length) => ((value % length) + length) % length;
   const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
-
-  function isReducedMotion() {
-    return reducedMotionQuery.matches;
-  }
+  const isReducedMotion = () => reducedMotionQuery.matches;
 
   function safeFocus(element) {
     if (!element || typeof element.focus !== "function") return;
@@ -67,59 +59,45 @@
     return typeof HTMLDialogElement !== "undefined";
   }
 
-  /* ====================================================================
-     02 · DIALOG- UND SCROLL-LOCK-HELFER
-     Native Dialoge übernehmen den Fokus-Trap im Modalmodus. Die Helfer
-     vereinheitlichen Öffnen, Schließen, Hintergrundsperre und Fallback.
-     ==================================================================== */
-
-  function syncBodyScrollLock() {
-    const lockingDialogOpen = Boolean(qs([
-      ".mobile-menu[open]",
-      ".project-finder-dialog[data-mode='modal'][open]",
-      ".concept-dialog[open]",
-      ".legal-dialog[open]"
-    ].join(",")));
-
-    document.body.classList.toggle("is-scroll-locked", lockingDialogOpen);
+  function smoothScrollTo(element, block = "center") {
+    element?.scrollIntoView({ behavior: isReducedMotion() ? "auto" : "smooth", block });
   }
 
-  function showDialog(dialog, modal = true) {
-    if (!dialog) return;
+  /* ====================================================================
+     02 · DIALOG-HELFER UND MOBILE NAVIGATION
+     ==================================================================== */
+  function syncBodyScrollLock() {
+    const modalOpen = Boolean(qs(".mobile-menu[open], .concept-dialog[open], .legal-dialog[open]"));
+    document.body.classList.toggle("is-scroll-locked", modalOpen);
+  }
 
+  function showDialog(dialog) {
+    if (!dialog) return;
     if (supportsDialog()) {
       if (dialog.open) dialog.close();
-      if (modal) dialog.showModal();
-      else dialog.show();
+      dialog.showModal();
     } else {
-      // Sehr alter Browser: Inhalt bleibt zugänglich, auch wenn der native
-      // Top-Layer und sein Fokusmanagement fehlen.
       dialog.setAttribute("open", "");
     }
-
     syncBodyScrollLock();
   }
 
   function closeDialog(dialog) {
-    if (!dialog || !dialog.hasAttribute("open")) return;
-
+    if (!dialog?.hasAttribute("open")) return;
     if (supportsDialog() && typeof dialog.close === "function") dialog.close();
     else dialog.removeAttribute("open");
-
     syncBodyScrollLock();
   }
 
-  function closeOtherDialogs(exception) {
+  function closeOtherDialogs(exception = null) {
     qsa("dialog[open]").forEach((dialog) => {
       if (dialog !== exception) closeDialog(dialog);
     });
   }
 
-  function closeOnBackdropClick(dialog, closeCallback = () => closeDialog(dialog)) {
-    if (!dialog) return;
-
-    dialog.addEventListener("pointerdown", (event) => {
-      if (event.target === dialog && dialog.open) closeCallback();
+  function closeOnBackdropClick(dialog, callback = () => closeDialog(dialog)) {
+    dialog?.addEventListener("pointerdown", (event) => {
+      if (event.target === dialog && dialog.open) callback();
     });
   }
 
@@ -131,14 +109,10 @@
 
   function initPlaceholderLinks() {
     qsa("[data-placeholder-link]").forEach((link) => {
-      link.setAttribute("title", "Vor dem Livegang echte URL beziehungsweise E-Mail-Adresse einsetzen");
+      link.title = "Vor dem Livegang echte Projekt-URL einsetzen";
       link.addEventListener("click", (event) => event.preventDefault());
     });
   }
-
-  /* ====================================================================
-     03 · MOBILE NAVIGATION
-     ==================================================================== */
 
   function initMobileNavigation() {
     const dialog = qs("#mobile-menu");
@@ -146,42 +120,28 @@
     const closeButton = qs("[data-close-mobile-menu]", dialog);
     if (!dialog || !openButton || !closeButton) return;
 
-    let returnFocusTo = null;
-
+    let returnFocusTo = openButton;
     const closeMenu = () => closeDialog(dialog);
 
     openButton.addEventListener("click", () => {
       returnFocusTo = openButton;
       closeOtherDialogs(dialog);
-      showDialog(dialog, true);
+      showDialog(dialog);
       safeFocus(qs("a", dialog) || closeButton);
     });
-
     closeButton.addEventListener("click", closeMenu);
     closeOnBackdropClick(dialog, closeMenu);
-
-    qsa("a[href^='#']", dialog).forEach((link) => {
-      link.addEventListener("click", () => closeMenu());
-    });
-
-    dialog.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closeMenu();
-    });
-
-    dialog.addEventListener("close", () => {
-      syncBodyScrollLock();
-      safeFocus(returnFocusTo);
-    });
+    qsa("a[href^='#']", dialog).forEach((link) => link.addEventListener("click", closeMenu));
+    dialog.addEventListener("cancel", (event) => { event.preventDefault(); closeMenu(); });
+    dialog.addEventListener("close", () => { syncBodyScrollLock(); safeFocus(returnFocusTo); });
   }
 
   /* ====================================================================
-     04 · 3D-PROJEKTKARUSSELL
-     Geschlossener Ring: 6 Karten × 60°. Drag, Swipe, horizontales
-     Trackpad, Tastatur, Pfeile und Indikatoren führen dieselbe snapTo()-
-     Funktion aus. Dadurch existiert nur eine Bewegungsquelle.
+     03 · 6-TEILIGES 3D-KARUSSELL
+     Sechs Karten × 60° bilden einen geschlossenen Ring. Front- und Rückseite
+     jeder Karte zeigen dieselbe reine Bildfläche; Text-Metadaten existieren
+     nur als Accessible Name am Link und nicht sichtbar auf der Karte.
      ==================================================================== */
-
   function initProjectCarousel() {
     const carousel = qs("[data-carousel]");
     if (!carousel) return;
@@ -193,7 +153,6 @@
     const previousButton = qs("[data-carousel-prev]", carousel);
     const nextButton = qs("[data-carousel-next]", carousel);
     const status = qs("[data-carousel-status]", carousel);
-
     if (!ring || !viewport || cards.length !== CAROUSEL_CONFIG.cardCount) return;
 
     const state = {
@@ -207,7 +166,6 @@
       suppressClick: false,
       wheelLocked: false
     };
-
     const hasGSAP = Boolean(window.gsap);
 
     cards.forEach((card, index) => {
@@ -216,26 +174,21 @@
     });
 
     function createDots() {
-      if (!dotsContainer) return;
       const fragment = document.createDocumentFragment();
-
       cards.forEach((card, index) => {
-        const label = qs(".carousel-card__meta b", card)?.textContent?.trim() || `Projekt ${index + 1}`;
         const button = document.createElement("button");
         button.type = "button";
         button.className = "carousel-dot";
         button.dataset.carouselDot = String(index);
-        button.setAttribute("aria-label", `${label} anzeigen`);
+        button.setAttribute("aria-label", `Websitebild ${index + 1} anzeigen`);
         button.addEventListener("click", () => snapTo(index));
         fragment.appendChild(button);
       });
-
-      dotsContainer.replaceChildren(fragment);
+      dotsContainer?.replaceChildren(fragment);
     }
 
     function setRingRotation(rotation, animate = true) {
       state.rotation = rotation;
-
       if (hasGSAP) {
         window.gsap.to(ring, {
           xPercent: -50,
@@ -250,26 +203,22 @@
       }
     }
 
-    function setImmediateRingRotation(rotation) {
+    function setImmediateRotation(rotation) {
       state.rotation = rotation;
-      if (hasGSAP) {
-        window.gsap.set(ring, { xPercent: -50, yPercent: -50, rotationY: rotation });
-      } else {
-        ring.style.transform = `translate(-50%, -50%) rotateY(${rotation}deg)`;
-      }
+      if (hasGSAP) window.gsap.set(ring, { xPercent: -50, yPercent: -50, rotationY: rotation });
+      else ring.style.transform = `translate(-50%, -50%) rotateY(${rotation}deg)`;
     }
 
-    function updateAccessibleState() {
+    function updateState() {
       cards.forEach((card, index) => {
         const relative = modulo(index - state.activeIndex, cards.length);
-        const shortestDistance = Math.min(relative, cards.length - relative);
+        const distance = Math.min(relative, cards.length - relative);
         const isActive = index === state.activeIndex;
-
         card.classList.toggle("is-active", isActive);
         card.setAttribute("aria-hidden", String(!isActive));
         card.tabIndex = isActive ? 0 : -1;
-        card.style.opacity = String(shortestDistance === 0 ? 1 : shortestDistance === 1 ? 0.72 : 0.42);
-        card.style.zIndex = String(10 - shortestDistance);
+        card.style.opacity = String(distance === 0 ? 1 : distance === 1 ? 0.76 : 0.38);
+        card.style.zIndex = String(10 - distance);
       });
 
       qsa("[data-carousel-dot]", carousel).forEach((dot, index) => {
@@ -277,23 +226,18 @@
         dot.classList.toggle("is-active", isActive);
         dot.setAttribute("aria-current", isActive ? "true" : "false");
       });
-
-      const activeLabel = qs(".carousel-card__meta b", cards[state.activeIndex])?.textContent?.trim();
-      if (status) status.textContent = `${activeLabel || "Projekt"}, ${state.activeIndex + 1} von ${cards.length}`;
+      if (status) status.textContent = `Websitebild ${state.activeIndex + 1} von ${cards.length}`;
     }
 
     function snapTo(index, animate = true) {
       state.activeIndex = modulo(index, cards.length);
-      const targetRotation = -state.activeIndex * CAROUSEL_CONFIG.angleStep;
-      setRingRotation(targetRotation, animate);
-      updateAccessibleState();
+      setRingRotation(-state.activeIndex * CAROUSEL_CONFIG.angleStep, animate);
+      updateState();
     }
 
-    function step(direction) {
-      snapTo(state.activeIndex + direction);
-    }
+    const step = (direction) => snapTo(state.activeIndex + direction);
 
-    function handlePointerDown(event) {
+    function onPointerDown(event) {
       if (event.button !== 0 || event.target.closest("button")) return;
       state.pointerId = event.pointerId;
       state.dragStartX = event.clientX;
@@ -304,230 +248,178 @@
       viewport.setPointerCapture?.(event.pointerId);
     }
 
-    function handlePointerMove(event) {
+    function onPointerMove(event) {
       if (!state.isDragging || event.pointerId !== state.pointerId) return;
       const deltaX = event.clientX - state.dragStartX;
       state.dragDistance = deltaX;
       if (Math.abs(deltaX) > 6) state.suppressClick = true;
-
-      const rotation = state.dragStartRotation + (deltaX * CAROUSEL_CONFIG.dragDegreesPerPixel);
-      setImmediateRingRotation(rotation);
+      setImmediateRotation(state.dragStartRotation + deltaX * CAROUSEL_CONFIG.dragDegreesPerPixel);
     }
 
-    function handlePointerEnd(event) {
+    function onPointerEnd(event) {
       if (!state.isDragging || event.pointerId !== state.pointerId) return;
       state.isDragging = false;
       viewport.releasePointerCapture?.(event.pointerId);
-
-      const distance = state.dragDistance;
-      if (Math.abs(distance) >= CAROUSEL_CONFIG.dragThresholdPx) {
-        step(distance < 0 ? 1 : -1);
-      } else {
-        snapTo(state.activeIndex);
-      }
-
-      window.setTimeout(() => {
-        state.suppressClick = false;
-      }, 0);
+      if (Math.abs(state.dragDistance) >= CAROUSEL_CONFIG.dragThresholdPx) step(state.dragDistance < 0 ? 1 : -1);
+      else snapTo(state.activeIndex);
+      window.setTimeout(() => { state.suppressClick = false; }, 0);
     }
 
-    function handleWheel(event) {
+    function onWheel(event) {
       const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.15;
       if (!horizontalIntent || Math.abs(event.deltaX) < CAROUSEL_CONFIG.wheelThreshold) return;
-
       event.preventDefault();
       if (state.wheelLocked) return;
-
       state.wheelLocked = true;
       step(event.deltaX > 0 ? 1 : -1);
-      window.setTimeout(() => {
-        state.wheelLocked = false;
-      }, 420);
+      window.setTimeout(() => { state.wheelLocked = false; }, 380);
     }
 
-    function handleKeyboard(event) {
-      const keyActions = {
+    function onKeydown(event) {
+      const actions = {
         ArrowLeft: () => step(-1),
         ArrowRight: () => step(1),
         Home: () => snapTo(0),
         End: () => snapTo(cards.length - 1)
       };
-      const action = keyActions[event.key];
-      if (!action) return;
+      if (!actions[event.key]) return;
       event.preventDefault();
-      action();
+      actions[event.key]();
     }
 
     createDots();
     previousButton?.addEventListener("click", () => step(-1));
     nextButton?.addEventListener("click", () => step(1));
-    carousel.addEventListener("keydown", handleKeyboard);
-    viewport.addEventListener("pointerdown", handlePointerDown);
-    viewport.addEventListener("pointermove", handlePointerMove);
-    viewport.addEventListener("pointerup", handlePointerEnd);
-    viewport.addEventListener("pointercancel", handlePointerEnd);
-    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    carousel.addEventListener("keydown", onKeydown);
+    viewport.addEventListener("pointerdown", onPointerDown);
+    viewport.addEventListener("pointermove", onPointerMove);
+    viewport.addEventListener("pointerup", onPointerEnd);
+    viewport.addEventListener("pointercancel", onPointerEnd);
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    cards.forEach((card) => card.addEventListener("click", (event) => {
+      if (Number(card.dataset.index) !== state.activeIndex || state.suppressClick) event.preventDefault();
+    }));
 
-    cards.forEach((card) => {
-      card.addEventListener("click", (event) => {
-        const isActive = Number(card.dataset.index) === state.activeIndex;
-        if (!isActive || state.suppressClick) event.preventDefault();
-      });
-    });
+    setImmediateRotation(0);
+    updateState();
 
-    setImmediateRingRotation(0);
-    updateAccessibleState();
-
-    // Einmaliger Interaktionshinweis statt Autoplay. Bei Reduced Motion
-    // bleibt der Ring vollständig ruhig.
     if (hasGSAP && !isReducedMotion()) {
-      window.gsap.timeline({ delay: 1.1 })
-        .to(ring, { rotationY: 7, duration: 0.45, ease: "power2.out" })
-        .to(ring, { rotationY: 0, duration: 0.65, ease: "power3.out" });
+      window.gsap.timeline({ delay: 1 })
+        .to(ring, { rotationY: 7, duration: .4, ease: "power2.out" })
+        .to(ring, { rotationY: 0, duration: .62, ease: "power3.out" });
     }
   }
 
   /* ====================================================================
-     05 · ZENTRALER PROJEKTFINDER
-     Zustände: IDLE, OPEN, FILLING, VALIDATING, SUBMITTING, SUCCESS, ERROR.
-     Der gleiche Dialog öffnet inline oder im Top-Layer. Eingaben werden
-     bei Fehlern und beim Schließen nicht ungefragt gelöscht.
+     04 · ANGEBOTSFRAGEN IM SELBEN KASTEN
+     Zustände: CLOSED, OPEN, FILLING, VALIDATING, SUBMITTING, SUCCESS, ERROR.
      ==================================================================== */
+  function initOfferWizard() {
+    const box = qs("[data-offer-box]");
+    const startButton = qs(".offer-box__start", box);
+    const wizard = qs("#offer-wizard", box);
+    const closeButton = qs("[data-close-offer]", box);
+    const form = qs("[data-offer-form]", box);
+    if (!box || !startButton || !wizard || !form) return;
 
-  function initProjectFinder() {
-    const dialog = qs("[data-project-finder]");
-    const form = qs("[data-project-form]", dialog);
-    if (!dialog || !form) return;
+    const externalTriggers = qsa("[data-open-offer]").filter((trigger) => trigger !== startButton);
+    const steps = qsa("[data-offer-step]", form);
+    const backButton = qs("[data-offer-back]", form);
+    const nextButton = qs("[data-offer-next]", form);
+    const submitButton = qs("[data-offer-submit]", form);
+    const progressLabel = qs("[data-offer-progress]", box);
+    const progressBar = qs("[data-offer-progress-bar]", box);
+    const errorBox = qs("[data-offer-error]", box);
+    const status = qs("[data-offer-status]", box);
+    const successPanel = qs("[data-offer-success]", box);
+    const resetButton = qs("[data-reset-offer]", box);
+    const state = { step: 1, status: "CLOSED", returnFocusTo: startButton };
 
-    const triggers = qsa("[data-open-project-finder]");
-    const closeButton = qs("[data-close-project-finder]", dialog);
-    const steps = qsa("[data-form-step]", form);
-    const backButton = qs("[data-form-back]", form);
-    const nextButton = qs("[data-form-next]", form);
-    const submitButton = qs("[data-form-submit]", form);
-    const progressLabel = qs("[data-progress-label]", dialog);
-    const progressBar = qs("[data-progress-bar]", dialog);
-    const errorSummary = qs("[data-form-error-summary]", dialog);
-    const status = qs("[data-form-status]", form);
-    const successPanel = qs("[data-form-success]", dialog);
-    const resetButton = qs("[data-reset-project-form]", dialog);
-
-    const state = {
-      step: 1,
-      mode: "inline",
-      status: "IDLE",
-      returnFocusTo: null
-    };
-
-    function setState(nextState) {
-      state.status = nextState;
-      dialog.dataset.state = nextState;
+    function setState(value) {
+      state.status = value;
+      box.dataset.state = value.toLowerCase();
     }
 
     function clearErrors() {
       qsa("[aria-invalid='true']", form).forEach((field) => field.removeAttribute("aria-invalid"));
-      if (errorSummary) {
-        errorSummary.textContent = "";
-        errorSummary.hidden = true;
-      }
-      if (status) {
-        status.textContent = "";
-        status.className = "form-status";
-      }
+      if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
+      if (status) status.textContent = "";
     }
 
-    function showError(message, invalidField = null) {
+    function showError(message, field = null) {
       setState("ERROR");
-      if (invalidField) invalidField.setAttribute("aria-invalid", "true");
-      if (errorSummary) {
-        errorSummary.textContent = message;
-        errorSummary.hidden = false;
-        safeFocus(errorSummary);
+      if (field) field.setAttribute("aria-invalid", "true");
+      if (errorBox) {
+        errorBox.textContent = message;
+        errorBox.hidden = false;
+        safeFocus(errorBox);
       }
     }
 
-    function updateStepUI() {
-      steps.forEach((stepElement, index) => {
-        stepElement.hidden = index + 1 !== state.step;
-      });
+    function animateCurrentStep() {
+      const current = steps[state.step - 1];
+      if (!current || !window.gsap || isReducedMotion()) return;
+      window.gsap.fromTo(current, { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: .38, ease: "power2.out", clearProps: "transform,opacity,visibility" });
+    }
 
-      if (progressLabel) progressLabel.textContent = `Schritt ${state.step} von ${steps.length}`;
-      if (progressBar) progressBar.style.width = `${(state.step / steps.length) * 100}%`;
-
+    function updateStep() {
+      steps.forEach((step, index) => { step.hidden = index + 1 !== state.step; });
+      if (progressLabel) progressLabel.textContent = `${String(state.step).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
+      if (progressBar) progressBar.style.width = `${state.step / steps.length * 100}%`;
       if (backButton) backButton.hidden = state.step === 1;
       if (nextButton) nextButton.hidden = state.step === steps.length;
       if (submitButton) submitButton.hidden = state.step !== steps.length;
-
-      setState(state.step > 1 ? "FILLING" : "OPEN");
+      setState(state.step === 1 ? "OPEN" : "FILLING");
       clearErrors();
-
-      const currentStep = steps[state.step - 1];
-      const firstControl = qs("input, textarea, button", currentStep);
-      safeFocus(firstControl);
+      animateCurrentStep();
+      safeFocus(qs("input, textarea", steps[state.step - 1]));
     }
 
-    function validateCurrentStep() {
+    function validateStep() {
       setState("VALIDATING");
       clearErrors();
-      const currentStep = steps[state.step - 1];
-      if (!currentStep) return true;
+      const current = steps[state.step - 1];
 
       if (state.step <= 3) {
-        const checkedRadio = qs("input[type='radio']:checked", currentStep);
-        if (!checkedRadio) {
-          showError("Bitte wähle eine Antwort aus.", qs("input[type='radio']", currentStep));
+        const first = qs("input[type='radio']", current);
+        if (!qs("input[type='radio']:checked", current)) {
+          showError("Bitte wähle eine Antwort aus.", first);
           return false;
         }
       }
-
-      if (state.step === 4) {
-        const checkedGoal = qs("input[type='checkbox']:checked", currentStep);
-        if (!checkedGoal) {
-          showError("Bitte wähle mindestens ein Ziel aus.", qs("input[type='checkbox']", currentStep));
-          return false;
-        }
+      if (state.step === 4 && !qs("input[type='checkbox']:checked", current)) {
+        showError("Bitte wähle mindestens ein Ziel aus.", qs("input[type='checkbox']", current));
+        return false;
       }
-
       if (state.step === steps.length) {
-        const requiredFields = qsa("[required]", currentStep);
-        const invalidField = requiredFields.find((field) => !field.checkValidity());
-        if (invalidField) {
-          const message = invalidField.type === "email" && invalidField.value
-            ? "Bitte gib eine gültige E-Mail-Adresse ein."
-            : "Bitte fülle alle gekennzeichneten Pflichtfelder aus.";
-          showError(message, invalidField);
-          safeFocus(invalidField);
+        const invalid = qsa("[required]", current).find((field) => !field.checkValidity());
+        if (invalid) {
+          const message = invalid.type === "email" && invalid.value ? "Bitte gib eine gültige E-Mail-Adresse ein." : "Bitte fülle alle Pflichtfelder aus.";
+          showError(message, invalid);
+          safeFocus(invalid);
           return false;
         }
       }
-
       return true;
     }
 
-    function collectFormData() {
-      const formData = new FormData(form);
-      const result = {};
-
-      for (const [key, value] of formData.entries()) {
-        if (Object.prototype.hasOwnProperty.call(result, key)) {
-          result[key] = Array.isArray(result[key]) ? [...result[key], value] : [result[key], value];
-        } else {
-          result[key] = value;
-        }
+    function collectPayload() {
+      const result = { recipientEmail: FORM_CONFIG.recipientEmail, submittedAt: new Date().toISOString() };
+      for (const [key, value] of new FormData(form).entries()) {
+        if (Object.prototype.hasOwnProperty.call(result, key)) result[key] = Array.isArray(result[key]) ? [...result[key], value] : [result[key], value];
+        else result[key] = value;
       }
-
       return result;
     }
 
-    async function sendForm(payload) {
-      if (FORM_CONFIG.demoMode || !FORM_CONFIG.endpoint) {
-        await wait(isReducedMotion() ? 20 : 800);
+    async function sendPayload(payload) {
+      if (FORM_CONFIG.demoMode || !FORM_CONFIG.endpoint || !FORM_CONFIG.recipientEmail) {
+        await wait(isReducedMotion() ? 20 : 650);
         return { ok: true, demo: true, payload };
       }
 
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), FORM_CONFIG.requestTimeoutMs);
-
       try {
         const response = await fetch(FORM_CONFIG.endpoint, {
           method: "POST",
@@ -535,7 +427,6 @@
           body: JSON.stringify(payload),
           signal: controller.signal
         });
-
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return { ok: true, demo: false };
       } finally {
@@ -543,440 +434,301 @@
       }
     }
 
-    async function handleSubmit(event) {
-      event.preventDefault();
-      if (state.status === "SUBMITTING" || !validateCurrentStep()) return;
-
-      setState("SUBMITTING");
-      clearErrors();
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = "Wird verarbeitet …";
+    function openWizard(trigger = startButton) {
+      state.returnFocusTo = trigger;
+      const parentDialog = trigger.closest("dialog[open]");
+      if (parentDialog) {
+        state.returnFocusTo = parentDialog._returnFocusTo || qs(`[data-open-concept][data-concept='${parentDialog.dataset.conceptIndex || "0"}']`) || trigger;
+        closeDialog(parentDialog);
       }
-      if (status) status.textContent = "Deine Angaben werden geprüft.";
-
-      try {
-        const result = await sendForm(collectFormData());
-        if (!result.ok) throw new Error("Submission failed");
-
-        setState("SUCCESS");
-        form.hidden = true;
-        if (successPanel) {
-          successPanel.hidden = false;
-          safeFocus(successPanel);
-        }
-      } catch (error) {
-        setState("ERROR");
-        if (status) {
-          status.textContent = error.name === "AbortError"
-            ? "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut."
-            : "Die Anfrage konnte nicht gesendet werden. Deine Eingaben bleiben erhalten.";
-          status.classList.add("is-error");
-          safeFocus(status);
-        }
-      } finally {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = "Anfrage prüfen & senden";
-        }
-      }
+      startButton.hidden = true;
+      startButton.setAttribute("aria-expanded", "true");
+      wizard.hidden = false;
+      if (successPanel?.hidden === false) safeFocus(successPanel);
+      else updateStep();
+      smoothScrollTo(box, "center");
     }
 
-    function resetForm() {
+    function closeWizard() {
+      wizard.hidden = true;
+      startButton.hidden = false;
+      startButton.setAttribute("aria-expanded", "false");
+      setState("CLOSED");
+      safeFocus(state.returnFocusTo?.isConnected ? state.returnFocusTo : startButton);
+    }
+
+    function resetWizard() {
       form.reset();
       form.hidden = false;
       if (successPanel) successPanel.hidden = true;
       state.step = 1;
-      setState("IDLE");
-      updateStepUI();
+      updateStep();
     }
 
-    function openProjectFinder(trigger, requestedMode) {
-      // Wird der Projektfinder aus einem anderen Dialog geöffnet, soll der
-      // Fokus nach dem Schließen nicht in den inzwischen geschlossenen
-      // Dialog zurückkehren, sondern zu dessen ursprünglichem Auslöser.
-      const parentDialog = trigger.closest("dialog[open]");
-      state.returnFocusTo = parentDialog?._returnFocusTo || trigger;
-      state.mode = requestedMode === "inline" ? "inline" : "modal";
-
-      closeOtherDialogs(dialog);
-      if (dialog.open) closeDialog(dialog);
-
-      dialog.dataset.mode = state.mode;
-      showDialog(dialog, state.mode === "modal");
-      setState("OPEN");
-
-      const heading = qs("#project-finder-title", dialog);
-      safeFocus(heading || closeButton);
-
-      if (state.mode === "inline") {
-        dialog.scrollIntoView({
-          behavior: isReducedMotion() ? "auto" : "smooth",
-          block: "nearest"
-        });
-      }
-    }
-
-    function closeProjectFinder() {
-      closeDialog(dialog);
-    }
-
-    triggers.forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        const requestedMode = trigger.dataset.projectFinderMode || "modal";
-        // Einen eventuell geöffneten Concept-Dialog zuerst schließen, bevor
-        // der Projektfinder in den nativen Top-Layer wechselt.
-        window.requestAnimationFrame(() => openProjectFinder(trigger, requestedMode));
-      });
-    });
-
-    closeButton?.addEventListener("click", closeProjectFinder);
-    closeOnBackdropClick(dialog, () => {
-      if (dialog.dataset.mode === "modal") closeProjectFinder();
-    });
-
-    dialog.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closeProjectFinder();
-    });
-
-    dialog.addEventListener("close", () => {
-      syncBodyScrollLock();
-      setState("IDLE");
-      safeFocus(state.returnFocusTo);
-    });
-
+    startButton.addEventListener("click", () => openWizard(startButton));
+    externalTriggers.forEach((trigger) => trigger.addEventListener("click", () => openWizard(trigger)));
+    closeButton?.addEventListener("click", closeWizard);
     nextButton?.addEventListener("click", () => {
-      if (!validateCurrentStep()) return;
+      if (!validateStep()) return;
       state.step = Math.min(steps.length, state.step + 1);
-      updateStepUI();
+      updateStep();
     });
-
     backButton?.addEventListener("click", () => {
       state.step = Math.max(1, state.step - 1);
-      updateStepUI();
+      updateStep();
     });
+    resetButton?.addEventListener("click", resetWizard);
 
-    form.addEventListener("submit", handleSubmit);
-    resetButton?.addEventListener("click", resetForm);
-
-    updateStepUI();
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (state.status === "SUBMITTING" || !validateStep()) return;
+      setState("SUBMITTING");
+      clearErrors();
+      if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Wird vorbereitet …"; }
+      if (status) status.textContent = "Angaben werden geprüft.";
+      try {
+        const result = await sendPayload(collectPayload());
+        if (!result.ok) throw new Error("Submission failed");
+        setState("SUCCESS");
+        form.hidden = true;
+        if (successPanel) { successPanel.hidden = false; safeFocus(successPanel); }
+      } catch (error) {
+        setState("ERROR");
+        if (status) {
+          status.textContent = error.name === "AbortError" ? "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut." : "Die Anfrage konnte nicht verarbeitet werden. Deine Eingaben bleiben erhalten.";
+          safeFocus(status);
+        }
+      } finally {
+        if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Anfrage vorbereiten →"; }
+      }
+    });
   }
 
   /* ====================================================================
-     06 · FAQ-ACCORDION
-     Mehrere Einträge können offen sein. hidden wird erst nach der
-     Schließanimation gesetzt, damit der Bereich für Screenreader und
-     Tastaturzustand korrekt bleibt.
+     05 · HORIZONTALE SCROLLER
+     Native Touch-Navigation plus Maus-Drag, Trackpad, Pfeiltasten sowie
+     Vor-/Zurück-Buttons. Kein globaler Seiten-Overflow wird erzeugt.
      ==================================================================== */
+  function initHorizontalScrollers() {
+    qsa("[data-horizontal-scroller]").forEach((scroller) => {
+      const section = scroller.closest("section");
+      const previousButton = qs("[data-scroll-prev]", section);
+      const nextButton = qs("[data-scroll-next]", section);
+      let pointerId = null;
+      let startX = 0;
+      let startScrollLeft = 0;
+      let moved = false;
 
-  function initFAQ() {
-    const items = qsa(".faq-item");
-    if (!items.length) return;
+      const amount = () => Math.max(260, scroller.clientWidth * .72);
+      const scrollByAmount = (direction) => scroller.scrollBy({ left: direction * amount(), behavior: isReducedMotion() ? "auto" : "smooth" });
 
-    const hasGSAP = Boolean(window.gsap);
+      previousButton?.addEventListener("click", () => scrollByAmount(-1));
+      nextButton?.addEventListener("click", () => scrollByAmount(1));
 
-    function openAnswer(button, answer) {
-      button.setAttribute("aria-expanded", "true");
-      answer.hidden = false;
-
-      if (!hasGSAP || isReducedMotion()) {
-        answer.style.height = "auto";
-        return;
-      }
-
-      window.gsap.fromTo(answer,
-        { height: 0 },
-        {
-          height: "auto",
-          duration: 0.42,
-          ease: "power2.out",
-          clearProps: "height",
-          overwrite: true
-        }
-      );
-    }
-
-    function closeAnswer(button, answer) {
-      button.setAttribute("aria-expanded", "false");
-
-      if (!hasGSAP || isReducedMotion()) {
-        answer.hidden = true;
-        answer.style.height = "";
-        return;
-      }
-
-      window.gsap.to(answer, {
-        height: 0,
-        duration: 0.32,
-        ease: "power2.inOut",
-        overwrite: true,
-        onComplete: () => {
-          answer.hidden = true;
-          answer.style.height = "";
-        }
+      scroller.addEventListener("keydown", (event) => {
+        const actions = {
+          ArrowLeft: () => scrollByAmount(-1),
+          ArrowRight: () => scrollByAmount(1),
+          PageUp: () => scrollByAmount(-1),
+          PageDown: () => scrollByAmount(1),
+          Home: () => scroller.scrollTo({ left: 0, behavior: isReducedMotion() ? "auto" : "smooth" }),
+          End: () => scroller.scrollTo({ left: scroller.scrollWidth, behavior: isReducedMotion() ? "auto" : "smooth" })
+        };
+        if (!actions[event.key]) return;
+        event.preventDefault();
+        actions[event.key]();
       });
-    }
 
-    items.forEach((item) => {
+      scroller.addEventListener("wheel", (event) => {
+        if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+        if (!event.shiftKey || Math.abs(event.deltaY) < 4) return;
+        event.preventDefault();
+        scroller.scrollLeft += event.deltaY;
+      }, { passive: false });
+
+      scroller.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "touch" || event.button !== 0) return;
+        pointerId = event.pointerId;
+        startX = event.clientX;
+        startScrollLeft = scroller.scrollLeft;
+        moved = false;
+        scroller.classList.add("is-dragging");
+      });
+      scroller.addEventListener("pointermove", (event) => {
+        if (event.pointerId !== pointerId) return;
+        const delta = event.clientX - startX;
+        if (Math.abs(delta) > 5 && !moved) {
+          moved = true;
+          // Pointer Capture erst nach eindeutigem Drag aktivieren. Würde es
+          // bereits beim Pointerdown gesetzt, könnte ein normaler Klick auf
+          // Concept-Buttons zum Scroller umgeleitet werden.
+          scroller.setPointerCapture?.(pointerId);
+        }
+        scroller.scrollLeft = startScrollLeft - delta;
+      });
+      const endDrag = (event) => {
+        if (event.pointerId !== pointerId) return;
+        if (scroller.hasPointerCapture?.(pointerId)) scroller.releasePointerCapture(pointerId);
+        scroller.classList.remove("is-dragging");
+        pointerId = null;
+        window.setTimeout(() => { moved = false; }, 0);
+      };
+      scroller.addEventListener("pointerup", endDrag);
+      scroller.addEventListener("pointercancel", endDrag);
+      scroller.addEventListener("click", (event) => {
+        if (moved) { event.preventDefault(); event.stopPropagation(); }
+      }, true);
+    });
+  }
+
+  /* ====================================================================
+     06 · FAQ, CONCEPT- UND RECHTSTEXT-DIALOGE
+     ==================================================================== */
+  function initFAQ() {
+    const hasGSAP = Boolean(window.gsap);
+    qsa(".faq-list article").forEach((item) => {
       const button = qs("h3 > button", item);
       const answer = qs(".faq-answer", item);
       if (!button || !answer) return;
 
       button.addEventListener("click", () => {
-        const isOpen = button.getAttribute("aria-expanded") === "true";
-        if (isOpen) closeAnswer(button, answer);
-        else openAnswer(button, answer);
+        const open = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!open));
+
+        if (open) {
+          if (!hasGSAP || isReducedMotion()) { answer.hidden = true; answer.style.height = ""; }
+          else window.gsap.to(answer, { height: 0, duration: .28, ease: "power2.inOut", onComplete: () => { answer.hidden = true; answer.style.height = ""; } });
+        } else {
+          answer.hidden = false;
+          if (!hasGSAP || isReducedMotion()) answer.style.height = "auto";
+          else window.gsap.fromTo(answer, { height: 0 }, { height: "auto", duration: .38, ease: "power2.out", clearProps: "height" });
+        }
       });
     });
   }
 
-  /* ====================================================================
-     07 · CONCEPT-DETAILANSICHT UND RECHTLICHES
-     Concrete Concept-Inhalte sind laut PRD offen. Die Datenstruktur zeigt
-     die späteren Austauschpunkte ohne erfundene Kundenprojekte.
-     ==================================================================== */
-
   function initConceptDialog() {
     const dialog = qs("[data-concept-dialog]");
     if (!dialog) return;
-
-    const conceptData = [
-      {
-        number: "01 / Concept",
-        title: "Projektname folgt",
-        category: "Projektkategorie folgt",
-        cover: "Concept Cover 01",
-        description: "Hier entsteht die Beschreibung des ersten freien Designkonzepts – mit Designrichtung, Branche und gewünschter Wirkung."
-      },
-      {
-        number: "02 / Concept",
-        title: "Projektname folgt",
-        category: "Projektkategorie folgt",
-        cover: "Concept Cover 02",
-        description: "Dieser flexible Slot ist für ein eigenständiges Konzept mit individuellem Bildformat, Layout und Interaktionsidee vorbereitet."
-      },
-      {
-        number: "03 / Concept",
-        title: "Projektname folgt",
-        category: "Projektkategorie folgt",
-        cover: "Concept Cover 03",
-        description: "Der dritte Slot kann später um Desktop-, Mobile-, Designsystem-, UI-Detail- und Interaction-Module erweitert werden."
-      }
+    const closeButton = qs("[data-close-concept]", dialog);
+    const data = [
+      { number: "01 / Concept", title: "Concept 01", category: "Projektkategorie folgt", description: "Hier entsteht die Case Study mit Desktop-, Mobile-, Designsystem- und UI-Detailansichten." },
+      { number: "02 / Concept", title: "Concept 02", category: "Projektkategorie folgt", description: "Ein flexibler Slot für eine eigenständige Designrichtung und eine spätere ausführliche Case Study." },
+      { number: "03 / Concept", title: "Concept 03", category: "Projektkategorie folgt", description: "Dieser Slot ist für Desktop-, Mobile-, UI-Detail- und Interaction-Module vorbereitet." },
+      { number: "04 / Concept", title: "Concept 04", category: "Projektkategorie folgt", description: "Ein weiterer erweiterbarer Concept-Slot mit klarer Kennzeichnung als freie Designarbeit." }
     ];
 
-    const closeButton = qs("[data-close-concept]", dialog);
-
-    function populateConcept(index) {
-      const data = conceptData[index] || conceptData[0];
-      const bindings = {
-        "[data-concept-number]": data.number,
-        "[data-concept-title]": data.title,
-        "[data-concept-category]": data.category,
-        "[data-concept-cover]": data.cover,
-        "[data-concept-description]": data.description
-      };
-
-      Object.entries(bindings).forEach(([selector, value]) => {
-        const element = qs(selector, dialog);
-        if (element) element.textContent = value;
-      });
+    function populate(index) {
+      const item = data[index] || data[0];
+      dialog.dataset.conceptIndex = String(index);
+      const values = { "[data-concept-number]": item.number, "[data-concept-title]": item.title, "[data-concept-category]": item.category, "[data-concept-description]": item.description };
+      Object.entries(values).forEach(([selector, value]) => { const element = qs(selector, dialog); if (element) element.textContent = value; });
     }
 
-    qsa("[data-open-concept]").forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        dialog._returnFocusTo = trigger;
-        populateConcept(Number(trigger.dataset.concept || 0));
-        closeOtherDialogs(dialog);
-        showDialog(dialog, true);
-        safeFocus(qs("#concept-dialog-title", dialog) || closeButton);
-      });
-    });
-
+    qsa("[data-open-concept]").forEach((trigger) => trigger.addEventListener("click", () => {
+      const index = Number(trigger.dataset.concept || 0);
+      dialog._returnFocusTo = trigger;
+      populate(index);
+      closeOtherDialogs(dialog);
+      showDialog(dialog);
+      safeFocus(qs("#concept-dialog-title", dialog) || closeButton);
+    }));
     closeButton?.addEventListener("click", () => closeDialog(dialog));
     closeOnBackdropClick(dialog);
-
-    dialog.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closeDialog(dialog);
-    });
-
-    dialog.addEventListener("close", () => {
-      syncBodyScrollLock();
-      safeFocus(dialog._returnFocusTo);
-    });
+    dialog.addEventListener("cancel", (event) => { event.preventDefault(); closeDialog(dialog); });
+    dialog.addEventListener("close", () => { syncBodyScrollLock(); safeFocus(dialog._returnFocusTo); });
   }
 
   function initLegalDialogs() {
     qsa("[data-open-legal]").forEach((trigger) => {
       const dialog = qs(`#${trigger.dataset.openLegal}`);
       if (!dialog) return;
-
       trigger.addEventListener("click", () => {
         dialog._returnFocusTo = trigger;
         closeOtherDialogs(dialog);
-        showDialog(dialog, true);
+        showDialog(dialog);
         safeFocus(qs("h2", dialog) || qs("[data-close-dialog]", dialog));
       });
     });
 
     qsa(".legal-dialog").forEach((dialog) => {
-      const closeButton = qs("[data-close-dialog]", dialog);
-      closeButton?.addEventListener("click", () => closeDialog(dialog));
+      qs("[data-close-dialog]", dialog)?.addEventListener("click", () => closeDialog(dialog));
       closeOnBackdropClick(dialog);
-
-      dialog.addEventListener("cancel", (event) => {
-        event.preventDefault();
-        closeDialog(dialog);
-      });
-
-      dialog.addEventListener("close", () => {
-        syncBodyScrollLock();
-        safeFocus(dialog._returnFocusTo);
-      });
+      dialog.addEventListener("cancel", (event) => { event.preventDefault(); closeDialog(dialog); });
+      dialog.addEventListener("close", () => { syncBodyScrollLock(); safeFocus(dialog._returnFocusTo); });
     });
   }
 
   /* ====================================================================
-     08 · GSAP-ANIMATIONEN UND FUNKELSTERN
-     GSAP wird nur verwendet, wenn CDN und Plugin geladen sind. Ohne GSAP
-     existiert kein versteckter Ausgangszustand; Inhalte bleiben sichtbar.
+     07 · GSAP, FUNKELSTERN UND REDUCED MOTION
      ==================================================================== */
-
   function initSparkStar() {
     const star = qs("[data-spark-star]");
     if (!star || !window.gsap || isReducedMotion()) return;
-
     const sparkles = qsa("i", star);
-    let isAnimating = false;
-
-    function sparkle() {
-      if (isAnimating) return;
-      isAnimating = true;
-
-      window.gsap.timeline({
-        onComplete: () => {
-          isAnimating = false;
-        }
-      })
-        .to(star, { scale: 1.05, filter: "brightness(1.18) drop-shadow(0 1.3rem 1.7rem rgba(17,17,17,.2))", duration: 0.25, ease: "power2.out" })
-        .to(sparkles, { autoAlpha: 1, scale: 1.6, stagger: 0.06, duration: 0.16 }, "<")
-        .to(sparkles, { autoAlpha: 0, scale: 0.5, stagger: 0.05, duration: 0.24 })
-        .to(star, { scale: 1, filter: "brightness(1) drop-shadow(0 1.2rem 1.4rem rgba(17,17,17,.18))", duration: 0.35, ease: "power2.inOut" }, "<");
-    }
-
+    let running = false;
+    const sparkle = () => {
+      if (running) return;
+      running = true;
+      window.gsap.timeline({ onComplete: () => { running = false; } })
+        .to(star, { scale: 1.05, filter: "brightness(1.15) drop-shadow(0 1.3rem 1.2rem rgba(11,11,11,.2))", duration: .22 })
+        .to(sparkles, { autoAlpha: 1, scale: 1.6, stagger: .05, duration: .15 }, "<")
+        .to(sparkles, { autoAlpha: 0, scale: .5, stagger: .04, duration: .22 })
+        .to(star, { scale: 1, filter: "brightness(1) drop-shadow(0 1.2rem 1rem rgba(11,11,11,.18))", duration: .3 }, "<");
+    };
     star.addEventListener("pointerenter", sparkle);
-    star.addEventListener("focusin", sparkle);
     star._sparkle = sparkle;
   }
 
   function initScrollAnimations() {
-    const gsap = window.gsap;
-    const ScrollTrigger = window.ScrollTrigger;
-    if (!gsap || !ScrollTrigger || isReducedMotion()) return;
+    if (!window.gsap || !window.ScrollTrigger || isReducedMotion()) return;
+    window.gsap.registerPlugin(window.ScrollTrigger);
 
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Ruhiger Standard-Reveal für normale Inhalte.
     qsa("[data-reveal]").forEach((element) => {
-      const direction = element.dataset.reveal || "bottom";
-      const offsets = {
-        left: { x: -70, y: 0 },
-        right: { x: 70, y: 0 },
-        bottom: { x: 0, y: 34 }
-      };
-      const offset = offsets[direction] || offsets.bottom;
-
-      gsap.from(element, {
-        autoAlpha: 0,
-        x: offset.x,
-        y: offset.y,
-        duration: 0.9,
-        ease: "power3.out",
-        clearProps: "transform,opacity,visibility",
-        scrollTrigger: {
-          trigger: element,
-          start: "top 88%",
-          once: true
-        }
-      });
+      window.gsap.from(element, { autoAlpha: 0, y: 30, duration: .85, ease: "power3.out", clearProps: "transform,opacity,visibility", scrollTrigger: { trigger: element, start: "top 88%", once: true } });
     });
-
-    // PRD-spezifische Bewegungsrichtungen in Abschnitt 8.
     qsa("[data-special-reveal]").forEach((element) => {
       const direction = element.dataset.specialReveal;
-      const offsets = {
-        left: { x: -100, y: 0 },
-        right: { x: 100, y: 0 },
-        bottom: { x: 0, y: 100 }
-      };
-      const offset = offsets[direction] || offsets.bottom;
-
-      gsap.from(element, {
-        autoAlpha: 0,
-        x: offset.x,
-        y: offset.y,
-        duration: 1,
-        ease: "power3.out",
-        clearProps: "transform,opacity,visibility",
-        scrollTrigger: {
-          trigger: element,
-          start: "top 85%",
-          once: true
-        }
-      });
+      const offset = direction === "left" ? { x: -80, y: 0 } : direction === "right" ? { x: 80, y: 0 } : { x: 0, y: 70 };
+      window.gsap.from(element, { autoAlpha: 0, ...offset, duration: .9, ease: "power3.out", clearProps: "transform,opacity,visibility", scrollTrigger: { trigger: element, start: "top 86%", once: true } });
     });
 
     const heroCopy = qs("[data-hero-copy]");
     const carousel = qs("[data-carousel]");
     if (heroCopy && carousel) {
-      gsap.timeline({ defaults: { ease: "power3.out" } })
-        .from(qsa(":scope > *", heroCopy), { autoAlpha: 0, y: 28, duration: 0.8, stagger: 0.08 })
-        .from(carousel, { autoAlpha: 0, x: 44, rotationY: -4, duration: 1.05 }, "<0.16");
+      window.gsap.timeline({ defaults: { ease: "power3.out" } })
+        .from(qsa(":scope > *", heroCopy), { autoAlpha: 0, y: 24, duration: .75, stagger: .08 })
+        .from(carousel, { autoAlpha: 0, x: 45, rotationY: -4, duration: 1 }, "<.12");
     }
 
     const star = qs("[data-spark-star]");
-    if (star?._sparkle) {
-      ScrollTrigger.create({
-        trigger: star,
-        start: "top 82%",
-        once: true,
-        onEnter: () => star._sparkle()
-      });
-    }
+    if (star?._sparkle) window.ScrollTrigger.create({ trigger: star, start: "top 82%", once: true, onEnter: () => star._sparkle() });
   }
 
   function initReducedMotionListener() {
     const handleChange = () => {
-      if (reducedMotionQuery.matches && window.ScrollTrigger) {
-        window.ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-        qsa("[data-reveal], [data-special-reveal]").forEach((element) => {
-          element.style.removeProperty("opacity");
-          element.style.removeProperty("visibility");
-          element.style.removeProperty("transform");
-        });
-      }
+      if (!reducedMotionQuery.matches || !window.ScrollTrigger) return;
+      window.ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      qsa("[data-reveal], [data-special-reveal]").forEach((element) => {
+        element.style.removeProperty("opacity");
+        element.style.removeProperty("visibility");
+        element.style.removeProperty("transform");
+      });
     };
-
-    if (typeof reducedMotionQuery.addEventListener === "function") {
-      reducedMotionQuery.addEventListener("change", handleChange);
-    } else {
-      reducedMotionQuery.addListener(handleChange);
-    }
+    if (typeof reducedMotionQuery.addEventListener === "function") reducedMotionQuery.addEventListener("change", handleChange);
+    else reducedMotionQuery.addListener(handleChange);
   }
 
   /* ====================================================================
-     09 · APP-INITIALISIERUNG
-     Reihenfolge: Funktionale Komponenten zuerst, Animationen zuletzt.
-     So bleibt die Website auch bei Animationsfehlern vollständig nutzbar.
+     08 · APP-INITIALISIERUNG
      ==================================================================== */
-
   function initApp() {
     initCurrentYear();
     initPlaceholderLinks();
     initMobileNavigation();
     initProjectCarousel();
-    initProjectFinder();
+    initOfferWizard();
+    initHorizontalScrollers();
     initFAQ();
     initConceptDialog();
     initLegalDialogs();
@@ -985,9 +737,6 @@
     initReducedMotionListener();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initApp, { once: true });
-  } else {
-    initApp();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initApp, { once: true });
+  else initApp();
 })();
