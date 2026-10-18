@@ -114,48 +114,172 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 /* ======================================================================
    03 · HERO UND 3D-KARUSSELL
    ====================================================================== */
-.hero { min-height: calc(100svh - var(--header-height)); display: grid; align-items: center; padding-block: clamp(3rem, 7vw, 6rem); border-bottom: 1px solid var(--ink); }
-.hero__inner { display: grid; grid-template-columns: minmax(18rem, .72fr) minmax(0, 1.28fr); align-items: center; gap: clamp(2rem, 5vw, 6rem); }
+/* Desktop/Laptop: Der obere Hero-Weißraum ist gegenüber der vorherigen
+   Fassung ungefähr halbiert. Zweispaltenraster und horizontale Positionen
+   von Logo und 3D-Ring bleiben unverändert. */
+.hero { min-height: calc(100svh - var(--header-height)); display: grid; align-items: start; overflow-x: clip; padding-block: clamp(1.5rem, 3.5vw, 3rem); border-bottom: 1px solid var(--ink); }
+.hero__inner { display: grid; grid-template-columns: minmax(18rem, .72fr) minmax(0, 1.28fr); align-items: start; gap: clamp(2rem, 5vw, 6rem); }
 .hero__brand { min-width: 0; }
 .brand-logo--hero { width: min(100%, 34rem); aspect-ratio: 1.8 / 1; background-position: left center; }
-.hero__title { margin: .6rem 0 1.5rem; font-size: clamp(.7rem, 1.2vw, .95rem); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
-.hero__claim { margin: 0; font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw, 2.4rem); letter-spacing: -.02em; }
+.hero__title { margin: 2.25rem 0 0; font-size: clamp(.7rem, 1.2vw, .95rem); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.hero__claim { margin: 2.5rem 0 0; font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw, 2.4rem); letter-spacing: -.02em; }
 .hero__claim span { padding-inline: .55em; }
-.project-carousel { --card-width: clamp(13rem, 20vw, 20rem); --card-height: calc(var(--card-width) * .74); --carousel-radius: clamp(13.5rem, 22vw, 21rem); position: relative; min-width: 0; outline: none; user-select: none; }
-.carousel-viewport { position: relative; height: clamp(28rem, 46vw, 40rem); overflow: clip; perspective: 90rem; perspective-origin: 50% 47%; touch-action: pan-y pinch-zoom; }
-.carousel-ring { position: absolute; top: 50%; left: 50%; width: var(--card-width); height: var(--card-height); transform-style: preserve-3d; will-change: transform; }
-.carousel-card { position: absolute; inset: 0; display: block; color: var(--ink); text-decoration: none; transform-style: preserve-3d; will-change: transform, opacity; }
-.carousel-card:not(.is-active) { pointer-events: none; }
-.carousel-face { position: absolute; inset: 0; display: block; overflow: hidden; border: 1px solid rgba(11,11,11,.7); background: var(--paper); box-shadow: 0 1.4rem 2.8rem rgba(11,11,11,.16); backface-visibility: hidden; }
-.carousel-face--back { transform: rotateY(180deg); }
-.website-shot { --screen-bg: #f4f0e9; position: absolute; inset: 0; display: block; overflow: hidden; background: var(--screen-bg); }
-.website-shot::before { position: absolute; top: 0; right: 0; left: 0; height: 11%; border-bottom: 1px solid rgba(11,11,11,.22); background: rgba(255,255,255,.92); content: ""; }
-.website-shot::after { position: absolute; top: 4%; left: 5%; width: 22%; height: 2%; background: var(--ink); box-shadow: 3rem 0 0 rgba(11,11,11,.25), 5rem 0 0 rgba(11,11,11,.25); content: ""; }
-.website-shot i { position: absolute; display: block; }
-.website-shot i:nth-child(1) { top: 20%; left: 7%; width: 42%; height: 6%; background: var(--ink); box-shadow: 0 1rem 0 rgba(11,11,11,.22), 0 2rem 0 rgba(11,11,11,.22); }
-.website-shot i:nth-child(2) { top: 18%; right: 6%; width: 35%; height: 48%; border: 1px solid rgba(11,11,11,.35); background: linear-gradient(145deg, #fff, #d7d1ca); }
-.website-shot i:nth-child(3) { bottom: 8%; left: 7%; width: 24%; height: 22%; background: var(--ink); }
-.website-shot i:nth-child(4) { right: 6%; bottom: 8%; width: 56%; height: 22%; border: 1px solid rgba(11,11,11,.25); background: rgba(255,255,255,.8); }
-.carousel-card--02 .website-shot { --screen-bg: #eef1f2; }
-.carousel-card--02 .website-shot i:nth-child(2) { background: linear-gradient(145deg, #e3e7e9, #8b979d); }
-.carousel-card--03 .website-shot { --screen-bg: #171717; filter: invert(1); }
-.carousel-card--04 .website-shot { --screen-bg: #eef5f8; }
-.carousel-card--04 .website-shot i:nth-child(2) { background: linear-gradient(145deg, #e8f3f7, #7ba3b6); }
-.carousel-card--05 .website-shot { --screen-bg: #f5eee7; }
-.carousel-card--05 .website-shot i:nth-child(2) { border-radius: 50% 50% 0 0; background: linear-gradient(145deg, #fff, #c5b2a0); }
-.carousel-card--06 .website-shot { --screen-bg: #f2f2f2; }
-.carousel-card--06 .website-shot i:nth-child(1) { width: 60%; }
-.carousel-controls { display: grid; grid-template-columns: 3rem 1fr 3rem; align-items: center; gap: 1rem; max-width: 25rem; margin: -1.4rem auto 0; }
-.carousel-arrow { display: grid; width: 3rem; height: 3rem; place-items: center; border: 1px solid var(--ink); border-radius: 50%; background: var(--paper); transition: background .18s ease, color .18s ease, transform .18s ease; }
+.project-carousel {
+  /* Die Kamera ist bewusst deutlich räumlicher als eine Coverflow-Ansicht:
+     kleineres Perspective-Verhältnis + großer Radius + starke X-Neigung. */
+  --carousel-card-width: clamp(13.5rem, 16vw, 16rem);
+  --carousel-card-height: calc(var(--carousel-card-width) * .625);
+  --carousel-card-angle: 60deg;
+  --carousel-radius: clamp(20rem, 26vw, 24rem);
+  --carousel-tilt: -20deg;
+  --carousel-perspective: 64rem;
+  position: relative;
+  min-width: 0;
+  outline: none;
+  user-select: none;
+}
+
+.carousel-hint {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 3;
+  margin: 0;
+  color: var(--muted);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.project-carousel__stage {
+  position: relative;
+  height: clamp(35rem, 54vw, 46rem);
+  /* visible ist hier absichtlich: sonst werden die stark angewinkelten
+     60°-Seitenkarten am Rand der rechten Hero-Spalte abgeschnitten. Der
+     globale body-Overflow bleibt weiterhin geclippt. */
+  overflow: visible;
+  perspective: var(--carousel-perspective);
+  perspective-origin: 50% 45%;
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+}
+
+.project-carousel__stage.is-dragging { cursor: grabbing; }
+
+.project-carousel__ring {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  width: var(--carousel-card-width);
+  height: var(--carousel-card-height);
+  transform: translate(-50%, -50%) rotateX(var(--carousel-tilt)) rotateY(0deg);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.project-card {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: 0;
+  transform: rotateY(calc(var(--card-index) * var(--carousel-card-angle))) translateZ(var(--carousel-radius));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* WICHTIG: Niemals opacity/filter auf .project-card selbst setzen. Solche
+   Grouping-Properties würden den preserve-3d-Kontext abflachen und genau
+   die zuvor beobachtete flache Coverflow-Darstellung erzeugen. Die visuelle
+   Abschwächung liegt deshalb ausschließlich auf den beiden Kartenflächen. */
+.project-card__front,
+.project-card__back { opacity: .64; transition: opacity .32s ease; }
+.project-card.is-near > .project-card__front,
+.project-card.is-near > .project-card__back { opacity: .9; }
+.project-card.is-far-side > .project-card__front,
+.project-card.is-far-side > .project-card__back { opacity: .72; }
+.project-card.is-rear > .project-card__front,
+.project-card.is-rear > .project-card__back { opacity: .78; }
+.project-card.is-active > .project-card__front,
+.project-card.is-active > .project-card__back { opacity: 1; }
+
+.project-card__front,
+.project-card__back {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(11, 11, 11, .72);
+  background: var(--paper);
+  box-shadow: 0 1.5rem 3.2rem rgba(11, 11, 11, .18);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.project-card__back {
+  transform: rotateY(180deg);
+  background: #151515;
+}
+
+.project-card__back::after {
+  position: absolute;
+  inset: .65rem;
+  border: 1px solid rgba(255, 255, 255, .48);
+  background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(0, 0, 0, .32) 45%, rgba(0, 0, 0, .58));
+  content: "";
+  pointer-events: none;
+}
+
+.project-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.project-card__back img {
+  filter: grayscale(1) brightness(.48) contrast(1.18);
+  opacity: .8;
+}
+
+.project-carousel__controls {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 3rem 1fr 3rem;
+  align-items: center;
+  gap: 1rem;
+  max-width: 26rem;
+  margin: -1.25rem auto 0;
+}
+
+.carousel-arrow {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
 .carousel-arrow:hover { background: var(--ink); color: var(--paper); transform: scale(1.04); }
 .carousel-dots { display: flex; justify-content: center; gap: .45rem; }
 .carousel-dot { position: relative; width: 1.35rem; height: 2.75rem; padding: 0; background: transparent; }
-.carousel-dot::before { position: absolute; top: 50%; left: 50%; width: 1rem; height: 3px; background: #d5d5d5; content: ""; transform: translate(-50%,-50%); transition: background .18s ease, width .18s ease; }
+.carousel-dot::before { position: absolute; top: 50%; left: 50%; width: 1rem; height: 3px; background: #d5d5d5; content: ""; transform: translate(-50%, -50%); transition: background .18s ease, width .18s ease; }
 .carousel-dot.is-active::before { width: 1.7rem; background: var(--ink); }
-.no-js .carousel-viewport { height: auto; overflow-x: auto; perspective: none; scroll-snap-type: x mandatory; }
-.no-js .carousel-ring { position: static; display: flex; width: auto; height: auto; gap: 1rem; padding: 1rem; transform: none; }
-.no-js .carousel-card { position: relative; flex: 0 0 min(76vw, 20rem); aspect-ratio: 1.35; pointer-events: auto; scroll-snap-align: center; transform: none !important; }
-.no-js .carousel-face--back, .no-js .carousel-controls { display: none; }
+
+/* Technisch notwendige Integration: Ohne JavaScript bleibt die bestehende
+   Website nutzbar; der Ring wird als horizontale Scroll-Snap-Liste gezeigt. */
+.no-js .project-carousel__stage { height: auto; overflow-x: auto; perspective: none; scroll-snap-type: x mandatory; cursor: auto; }
+.no-js .project-carousel__ring { position: static; display: flex; width: auto; height: auto; gap: 1rem; padding: 2.5rem 1rem 1rem; transform: none; }
+.no-js .project-card { position: relative; flex: 0 0 min(76vw, 21rem); aspect-ratio: 1.6 / 1; opacity: 1; scroll-snap-align: center; transform: none !important; }
+.no-js .project-card__back,
+.no-js .project-carousel__controls { display: none; }
 
 /* ======================================================================
    04 · ANGEBOTSFRAGEN
@@ -165,7 +289,8 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .project-entry__column { min-width: 0; padding-right: clamp(2rem, 4vw, 4rem); }
 .project-entry__column--quick { padding-right: 0; padding-left: clamp(2rem, 4vw, 4rem); border-left: 1px solid var(--ink); }
 .split-heading { min-height: 4rem; margin-bottom: 1.2rem; }
-.split-heading h2 { margin-bottom: .4rem; font-size: clamp(.8rem, 1.35vw, 1rem); font-weight: 400; letter-spacing: .13em; line-height: 1.35; text-transform: uppercase; }
+/* Exakt dieselbe Typografie wie .section-heading h2 (z. B. LEISTUNGEN). */
+.split-heading h2 { margin: 0 0 .4rem; font-family: var(--font-sans); font-size: clamp(.95rem, 1.6vw, 1.25rem); font-weight: 400; letter-spacing: .1em; line-height: 1.1; text-transform: uppercase; }
 .split-heading p { margin: 0; font-size: .62rem; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
 .offer-box { min-height: 14rem; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
 .offer-box__start { display: flex; width: 100%; min-height: 14rem; align-items: center; justify-content: center; gap: clamp(2rem, 7vw, 7rem); padding: 1.5rem; background: var(--ink); color: var(--paper); font-family: var(--font-serif); font-size: clamp(1.4rem, 2.8vw, 2.5rem); letter-spacing: .04em; text-transform: uppercase; }
@@ -265,14 +390,26 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .possibility { min-width: 0; }
 .possibility h3 { margin-bottom: .6rem; font-family: var(--font-serif); font-size: clamp(1.8rem, 3vw, 3rem); font-weight: 400; line-height: 1; }
 .possibility p { margin: 0; font-size: .9rem; }
-.possibility--soft { min-height: 16rem; display: flex; flex-direction: column; justify-content: center; padding: clamp(1.5rem, 3vw, 3rem); border-radius: 1.3rem; background: var(--soft); transition: transform .25s var(--ease), background .25s ease; }
-.possibility--soft:hover { background: var(--soft-2); transform: translateY(-.35rem); }
+.possibility--soft { min-height: 16rem; display: flex; flex-direction: column; justify-content: center; padding: clamp(1.5rem, 3vw, 3rem); border-radius: 1.3rem; background: #123c32; color: var(--paper); box-shadow: 0 1.2rem 2.7rem rgba(18,60,50,.18); transition: transform .25s var(--ease), background .25s ease; }
+.possibility--soft:hover { background: #0d332a; transform: translateY(-.35rem); }
 .possibility--soft > span { align-self: flex-end; margin-top: 1.5rem; font-size: 2rem; }
-.spark-star { position: relative; width: min(100%, 14rem); aspect-ratio: 1; justify-self: center; filter: drop-shadow(0 1.2rem 1rem rgba(11,11,11,.18)); }
-.spark-star > span { position: absolute; inset: 0; display: grid; place-content: center; color: #444; font-size: .63rem; font-weight: 700; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
-.spark-star i { position: absolute; width: .45rem; height: .45rem; border-radius: 50%; background: #fff; box-shadow: 0 0 .6rem .2rem #fff; opacity: 0; }
-.spark-star i:nth-of-type(1) { top: 18%; left: 52%; }.spark-star i:nth-of-type(2) { top: 42%; right: 12%; }.spark-star i:nth-of-type(3) { bottom: 18%; left: 28%; }
-.possibility--quality { min-height: 15rem; padding: clamp(1.5rem, 3vw, 3rem); background: var(--soft); transition: transform .25s var(--ease); }
+/* 3D-Star: CSS erzeugt Form, dunkelgoldenes Material, Facetten und den
+   separaten Schimmer-Layer. GSAP bewegt ausschließlich __shine. */
+.spark-star { position: relative; width: min(100%, 14rem); aspect-ratio: 1; justify-self: center; isolation: isolate; filter: drop-shadow(0 1.35rem 1.05rem rgba(55,40,8,.28)); }
+.spark-star__material { position: absolute; inset: 2%; overflow: hidden; clip-path: polygon(50% 0%, 61% 34%, 98% 35%, 68% 56%, 79% 94%, 50% 71%, 21% 94%, 32% 56%, 2% 35%, 39% 34%); background: linear-gradient(135deg, #4f3406 2%, #8f6515 27%, #3c2705 49%, #a97a20 70%, #493005 100%); box-shadow: inset 1.2rem 1.1rem 1.8rem rgba(255,219,119,.16), inset -1.1rem -1rem 1.6rem rgba(20,10,0,.5); transform: perspective(30rem) rotateX(10deg) rotateY(-8deg); transform-style: preserve-3d; }
+.spark-star__material::before { position: absolute; inset: 5%; clip-path: inherit; background: linear-gradient(25deg, rgba(255,236,169,.2), transparent 38%, rgba(0,0,0,.34) 72%); content: ""; }
+.spark-star__facet { position: absolute; inset: 0; clip-path: polygon(50% 0, 61% 34%, 50% 50%, 39% 34%); background: linear-gradient(90deg, rgba(255,222,124,.46), rgba(31,17,0,.4)); }
+.spark-star__facet--two { clip-path: polygon(98% 35%, 68% 56%, 50% 50%, 61% 34%); background: linear-gradient(145deg, rgba(255,206,82,.3), rgba(23,12,0,.52)); }
+.spark-star__shine { position: absolute; top: -25%; bottom: -25%; left: -65%; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,248,213,.08), rgba(255,255,255,.82), rgba(255,236,164,.18), transparent); filter: blur(.12rem); opacity: 0; transform: skewX(-17deg); will-change: transform, opacity; }
+.spark-star__label { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; color: var(--paper); font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-align: center; text-shadow: 0 1px .35rem rgba(0,0,0,.75); }
+
+/* QUALITÄT: Weinrote Fläche; der permanente Randakzent ist rein CSS-basiert
+   und liegt in einem maskierten Pseudo-Element, nicht über dem Inhalt. */
+@property --quality-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.possibility--quality { --quality-angle: 0deg; position: relative; min-height: 15rem; padding: clamp(1.5rem, 3vw, 3rem); border-radius: .15rem; background: #651f35; color: var(--paper); isolation: isolate; box-shadow: 0 1.15rem 2.5rem rgba(101,31,53,.2); transition: transform .25s var(--ease); }
+.possibility--quality::before { position: absolute; inset: -2px; z-index: 0; padding: 2px; border-radius: inherit; background: conic-gradient(from var(--quality-angle), transparent 0 64%, rgba(255,239,199,.18) 72%, rgba(255,246,217,.9) 78%, rgba(205,151,103,.28) 86%, transparent 94%); content: ""; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; animation: quality-border-orbit 6s linear infinite; }
+.possibility--quality > * { position: relative; z-index: 1; }
+@keyframes quality-border-orbit { to { --quality-angle: 360deg; } }
 .possibility--quality:hover { transform: translateY(-.3rem); }
 .possibility--call { display: grid; width: min(100%, 15rem); aspect-ratio: 1; place-content: center; justify-self: end; border: 1px solid var(--ink); border-radius: 50%; background: var(--paper); font-family: var(--font-serif); font-size: clamp(1.2rem, 2.2vw, 1.9rem); text-align: center; transition: background .25s ease, color .25s ease, transform .25s var(--ease); }
 .possibility--call b { display: block; width: max-content; margin: 1rem auto 0; padding: .7rem 1rem; border-radius: 999px; background: var(--ink); color: var(--paper); font-family: var(--font-sans); font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; }
@@ -288,20 +425,20 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .horizontal-scroller { width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: var(--ink) #e1e1e1; scroll-behavior: smooth; scroll-snap-type: x mandatory; cursor: grab; touch-action: pan-x pan-y; }
 .horizontal-scroller.is-dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; }
 .horizontal-track { display: flex; gap: clamp(1rem, 2.5vw, 2.5rem); width: max-content; padding-bottom: 1.5rem; }
-.reference-card { display: block; width: clamp(19rem, 42vw, 40rem); flex: 0 0 auto; scroll-snap-align: start; text-decoration: none; }
-.reference-card__image { width: 100%; aspect-ratio: 16 / 9; transition: transform .3s var(--ease); }
+.reference-card, .concept-card { width: clamp(19rem, 42vw, 40rem); flex: 0 0 auto; scroll-snap-align: start; }
+.reference-card { display: grid; grid-template-rows: auto minmax(4.5rem, 1fr); text-decoration: none; }
+.reference-card__image, .concept-card__image { width: 100%; aspect-ratio: 16 / 9; transition: transform .3s var(--ease); }
 .reference-card__image--dark { background-color: #161616; }.reference-card__image--dark > i { background: #292929; border-color: #555; }.reference-card__image--split { background-color: #eeeae5; }
-.reference-card > span:last-child, .concept-card button > span:last-child { display: grid; grid-template-columns: 1fr auto; gap: .2rem 1rem; align-items: center; padding-top: .8rem; }
+.reference-card > span:last-child, .concept-card button > span:last-child { display: grid; min-height: 4.5rem; grid-template-columns: 1fr auto; gap: .2rem 1rem; align-items: center; padding-top: .8rem; }
 .reference-card b, .concept-card b { font-family: var(--font-serif); font-size: clamp(1.3rem, 2.2vw, 2rem); font-weight: 400; }
 .reference-card small, .concept-card small { color: var(--muted); font-size: .65rem; letter-spacing: .05em; text-transform: uppercase; }
 .reference-card em, .concept-card em { grid-column: 2; grid-row: 1 / 3; font-size: 1.2rem; font-style: normal; transition: transform .2s ease; }
 .reference-card:hover .reference-card__image { transform: scale(1.012); }.reference-card:hover em, .concept-card button:hover em { transform: translateX(.35rem); }
-.concept-track { align-items: flex-start; }
-.concept-card { width: clamp(18rem, 36vw, 34rem); flex: 0 0 auto; scroll-snap-align: start; }
-.concept-card:nth-child(even) { width: clamp(16rem, 31vw, 28rem); }
-.concept-card button { width: 100%; padding: 0; background: transparent; text-align: left; }
-.concept-card__image { width: 100%; aspect-ratio: 16 / 10; transition: transform .3s var(--ease); }
-.concept-card:nth-child(even) .concept-card__image { aspect-ratio: 4 / 3; }
+.concept-track { align-items: stretch; }
+/* Alle Concept-Karten übernehmen exakt die äußere Geometrie und 16:9-
+   Bildproportion der Referenzkarten. Nur der innere Inhalt darf variieren. */
+.concept-card { display: flex; }
+.concept-card button { display: grid; width: 100%; grid-template-rows: auto minmax(4.5rem, 1fr); padding: 0; background: transparent; text-align: left; }
 .concept-card__image--dark { background-color: #151515; }.concept-card__image--dark > i { background: #282828; border-color: #555; }.concept-card__image--split { background-color: #e6edf0; }
 .concept-card button:hover .concept-card__image { transform: scale(1.012); }
 .concept-dialog__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
@@ -346,7 +483,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .site-header__inner { grid-template-columns: 1fr 7rem 1fr; }
   .desktop-nav { gap: 1.5rem; }.desktop-nav--left { padding-right: 1rem; }.desktop-nav--right { padding-left: 1rem; }
   .hero__inner { grid-template-columns: minmax(15rem,.65fr) minmax(0,1.35fr); gap: 1.5rem; }
-  .project-carousel { --card-width: clamp(12rem, 23vw, 15rem); --carousel-radius: clamp(12.5rem, 25vw, 15.5rem); }
+  .project-carousel { --carousel-card-width: clamp(11.5rem, 19vw, 13.5rem); --carousel-radius: clamp(15.5rem, 28vw, 19rem); --carousel-tilt: -18deg; --carousel-perspective: 54rem; }
   .possibilities-grid { grid-template-columns: 1fr 1fr; }
   .spark-star { grid-column: 2; grid-row: 1; }.possibility--quality { grid-column: 1; }.possibility--call { grid-column: 2; grid-row: 2; justify-self: center; }
   .site-footer__grid { grid-template-columns: 1.4fr repeat(3,1fr); gap: 2rem; }
@@ -364,9 +501,10 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .brand-logo--hero { width: min(100%, 24rem); aspect-ratio: 1.7; }
   .hero__title { font-size: .68rem; }
   .hero__claim { font-size: clamp(1.5rem, 8vw, 2rem); }
-  .project-carousel { --card-width: min(68vw, 16rem); --carousel-radius: min(61vw, 14rem); width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
-  .carousel-viewport { height: 25rem; }
-  .carousel-controls { width: calc(100% - 2.5rem); margin-top: -.5rem; }
+  .project-carousel { --carousel-card-width: min(43vw, 10.75rem); --carousel-radius: min(46vw, 11.5rem); --carousel-tilt: -16deg; --carousel-perspective: 40rem; width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
+  .carousel-hint { top: .4rem; max-width: calc(100% - 2rem); overflow: hidden; text-overflow: ellipsis; }
+  .project-carousel__stage { height: 31rem; }
+  .project-carousel__controls { width: calc(100% - 2.5rem); margin-top: -.5rem; }
   .project-entry__grid { grid-template-columns: 1fr; }
   .project-entry__column { padding-right: 0; }.project-entry__column--quick { margin-top: 3rem; padding: 3rem 0 0; border-top: 1px solid var(--ink); border-left: 0; }
   .offer-choices, .offer-fields { grid-template-columns: 1fr; }.offer-fields__full { grid-column: auto; }.offer-actions { flex-wrap: wrap; }.offer-actions button { flex: 1 1 8rem; }
@@ -374,7 +512,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .pricing { grid-template-columns: 1fr; gap: 2.5rem; }.pricing__list p { align-items: flex-start; flex-direction: column; justify-content: center; gap: .2rem; }
   .about-frame { grid-template-columns: 1fr; }.about-frame__portrait { min-height: 0; border-right: 0; border-bottom: 1px solid var(--ink); }.about-frame__copy { padding: 2rem 1.3rem 2.5rem; }.about-frame__copy h3 { font-size: clamp(2.5rem, 13vw, 4rem); }
   .possibilities-grid { grid-template-columns: 1fr; gap: 1.8rem; }.possibility--soft, .spark-star, .possibility--quality, .possibility--call { grid-column: 1; grid-row: auto; }.spark-star { width: 11rem; }.possibility--call { width: 13rem; }
-  .reference-card { width: min(82vw, 28rem); }.concept-card, .concept-card:nth-child(even) { width: min(78vw, 25rem); }
+  .reference-card, .concept-card { width: min(82vw, 28rem); }
   .horizontal-track { padding-left: 1.25rem; padding-right: 1.25rem; }
   .concept-dialog { inset: 0; width: 100%; height: 100%; max-height: none; margin: 0; border: 0; }.concept-dialog__grid { grid-template-columns: 1fr; }
   .faq-list h3 > button { min-height: 4.5rem; padding-inline: .75rem; }.faq-list h3 > button > span { grid-template-columns: 2rem 1fr; }.faq-answer > div { padding: 1.3rem 1rem 1.6rem 2.7rem; }
@@ -386,7 +524,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 @media (max-width: 25rem) {
   :root { --page: calc(100% - 2rem); }
   .hero__claim span { padding-inline: .25em; }
-  .project-carousel { --card-width: 13.4rem; --carousel-radius: 11.8rem; }
+  .project-carousel { --carousel-card-width: 9.5rem; --carousel-radius: 10rem; --carousel-tilt: -15deg; --carousel-perspective: 36rem; }
   .carousel-dots { gap: .2rem; }.carousel-dot { width: 1rem; }
   .offer-box__start { min-height: 11rem; flex-direction: column; gap: 1rem; }.offer-wizard { padding: 1rem; }
   .site-footer__grid { grid-template-columns: 1fr; }.brand-logo--footer, .site-footer__grid > div:last-child { grid-column: auto; }
@@ -400,9 +538,11 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 @media (prefers-reduced-motion: reduce) {
   html, .horizontal-scroller { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .carousel-ring, .carousel-card, .spark-star, [data-reveal], [data-special-reveal] { transform: none; }
+  .spark-star, [data-reveal], [data-special-reveal] { transform: none; }
+  .possibility--quality::before { animation: none; --quality-angle: 72deg; }
+  .spark-star__shine { display: none; }
 }
 
 @media (forced-colors: active) {
-  .carousel-face, .about-frame, .possibility, .reference-card__image, .concept-card__image { border: 1px solid CanvasText; }
+  .project-card__front, .project-card__back, .about-frame, .possibility, .reference-card__image, .concept-card__image { border: 1px solid CanvasText; }
 }

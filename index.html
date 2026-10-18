@@ -83,43 +83,90 @@
           <p class="hero__claim">Concept. <span>Code.</span> Creation.</p>
         </div>
 
-        <div class="project-carousel" data-carousel role="region" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
-          <p class="sr-only" id="carousel-help">Mit Pfeiltasten, Wischgeste, horizontalem Trackpad oder den Steuerelementen durch sechs Websitebilder navigieren.</p>
-          <div class="carousel-viewport" aria-describedby="carousel-help">
-            <div class="carousel-ring" data-carousel-ring>
-              <a class="carousel-card" href="#project-01" data-carousel-card aria-label="Websiteprojekt 1 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
-              <a class="carousel-card carousel-card--02" href="#project-02" data-carousel-card aria-label="Websiteprojekt 2 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
-              <a class="carousel-card carousel-card--03" href="#project-03" data-carousel-card aria-label="Websiteprojekt 3 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
-              <a class="carousel-card carousel-card--04" href="#concept-01" data-carousel-card aria-label="Websitekonzept 1 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
-              <a class="carousel-card carousel-card--05" href="#concept-02" data-carousel-card aria-label="Websitekonzept 2 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
-              <a class="carousel-card carousel-card--06" href="#concept-03" data-carousel-card aria-label="Websitekonzept 3 ansehen">
-                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
-                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
-              </a>
+        <!-- ============================================================
+             HERO-KARUSSELL · Verbindliche Struktur aus der Nutzervorlage
+             Technisch notwendige Abweichung: Die Karten bleiben semantische
+             <article>-Elemente ohne Link, weil noch keine sechs finalen
+             Projektziele festgelegt sind. Sichtbar enthalten sie nur Bilder.
+             3D-FIX: opacity/filter dürfen nicht auf article.project-card
+             liegen, da sie sonst den preserve-3d-Kontext abflachen. Zustands-
+             Opacity wird ausschließlich auf Front- und Rückfläche gesetzt.
+             ============================================================ -->
+        <section class="project-carousel" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
+          <p class="carousel-hint" id="carousel-hint">Ziehen, wischen oder mit den Pfeiltasten navigieren</p>
+
+          <div class="project-carousel__stage" aria-describedby="carousel-hint">
+            <div class="project-carousel__ring">
+              <article class="project-card" style="--card-index: 0;" aria-label="Projekt 1 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/freiheit-reisen.webp" alt="Websiteansicht Freiheit Reisen" width="1200" height="750" decoding="async" fetchpriority="high" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/freiheit-reisen.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
+
+              <article class="project-card" style="--card-index: 1;" aria-label="Projekt 2 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/coach-dich-leicht.webp" alt="Websiteansicht Coach dich leicht" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/coach-dich-leicht.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
+
+              <article class="project-card" style="--card-index: 2;" aria-label="Projekt 3 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/projekt-5.webp" alt="Websiteansicht Projekt 5" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/projekt-5.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
+
+              <article class="project-card" style="--card-index: 3;" aria-label="Projekt 4 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/projekt-6.webp" alt="Websiteansicht Projekt 6" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/projekt-6.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
+
+              <article class="project-card" style="--card-index: 4;" aria-label="Projekt 5 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/glow-studio.webp" alt="Websiteansicht Glow Studio" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/glow-studio.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
+
+              <article class="project-card" style="--card-index: 5;" aria-label="Projekt 6 von 6">
+                <div class="project-card__front">
+                  <img src="assets/projects/puls.webp" alt="Websiteansicht PULS Krankenfahrdienst" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+                <div class="project-card__back" aria-hidden="true">
+                  <img src="assets/projects/puls.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
+                </div>
+              </article>
             </div>
           </div>
-          <div class="carousel-controls" aria-label="Karussellsteuerung">
-            <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Vorheriges Websitebild">←</button>
-            <div class="carousel-dots" data-carousel-dots aria-label="Websitebild auswählen"></div>
-            <button class="carousel-arrow" type="button" data-carousel-next aria-label="Nächstes Websitebild">→</button>
+
+          <div class="project-carousel__controls" aria-label="Karussellsteuerung">
+            <button class="carousel-arrow carousel-arrow--previous" type="button" aria-label="Vorheriges Projekt">←</button>
+            <div class="carousel-dots" aria-label="Projekt auswählen">
+              <button class="carousel-dot is-active" type="button" aria-label="Projekt 1 anzeigen" aria-current="true"></button>
+              <button class="carousel-dot" type="button" aria-label="Projekt 2 anzeigen" aria-current="false"></button>
+              <button class="carousel-dot" type="button" aria-label="Projekt 3 anzeigen" aria-current="false"></button>
+              <button class="carousel-dot" type="button" aria-label="Projekt 4 anzeigen" aria-current="false"></button>
+              <button class="carousel-dot" type="button" aria-label="Projekt 5 anzeigen" aria-current="false"></button>
+              <button class="carousel-dot" type="button" aria-label="Projekt 6 anzeigen" aria-current="false"></button>
+            </div>
+            <button class="carousel-arrow carousel-arrow--next" type="button" aria-label="Nächstes Projekt">→</button>
           </div>
-          <p class="sr-only" data-carousel-status aria-live="polite"></p>
-        </div>
+          <p class="sr-only project-carousel__status" aria-live="polite">Projekt 1 von 6</p>
+        </section>
       </div>
     </section>
 
@@ -303,14 +350,23 @@
 
     <!-- ==============================================================
          05 · UNBEGRENZTE MÖGLICHKEITEN
+         Entwicklerhinweis:
+         - Alle vier Elemente nutzen wiederholbare Viewport-Reveals.
+         - Sternform, Goldmaterial und Lichtreflex liegen in CSS; GSAP
+           steuert nur Eintritt und einmaligen Schimmer bei Eintritt/Hover.
+         - Der Qualitätsrand läuft dauerhaft per CSS und wird bei Reduced
+           Motion statisch dargestellt.
          ============================================================== -->
     <section class="section" aria-labelledby="possibilities-title">
       <div class="page-shell">
         <div class="section-heading"><h2 id="possibilities-title">Unbegrenzte Möglichkeiten</h2><span aria-hidden="true"></span></div>
         <div class="possibilities-grid">
-          <article class="possibility possibility--soft" data-special-reveal="left"><h3>Was du dir auch wünschst –</h3><p>keine Lösung von der Stange.</p><span aria-hidden="true">⟶</span></article>
-          <div class="spark-star" data-spark-star aria-hidden="true"><svg viewBox="0 0 240 240" focusable="false"><defs><linearGradient id="starGradient" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#d8d4cf"/><stop offset="1" stop-color="#777"/></linearGradient></defs><path d="M120 9 143 91 225 72 158 120 225 168 143 149 120 231 97 149 15 168 82 120 15 72 97 91Z" fill="url(#starGradient)" stroke="#c8c3bd"/><path d="M120 9 120 120 225 72M120 120 225 168M120 120 120 231M120 120 15 168M120 120 15 72" fill="none" stroke="#fff" stroke-opacity=".7"/></svg><span>Starke<br>Ergebnisse</span><i></i><i></i><i></i></div>
-          <article class="possibility possibility--quality" data-special-reveal="bottom"><h3>Qualität.</h3><p>haben sie schon vor vielen anderen wollen Bestand!</p></article>
+          <article class="possibility possibility--soft" data-special-reveal="left"><h3>Individuell</h3><p>Keine Lösung von der Stange. Dein Webauftritt wird passend zu deinem Unternehmen entwickelt.</p><span aria-hidden="true">⟶</span></article>
+          <div class="spark-star" data-spark-star data-special-reveal="star" role="img" aria-label="Dreidimensionaler dunkelgoldener Stern mit der Aufschrift Der Star" tabindex="0">
+            <div class="spark-star__material" aria-hidden="true"><span class="spark-star__facet"></span><span class="spark-star__facet spark-star__facet--two"></span><span class="spark-star__shine" data-star-shimmer></span></div>
+            <span class="spark-star__label">DER STAR</span>
+          </div>
+          <article class="possibility possibility--quality" data-special-reveal="bottom"><h3>Qualität.</h3><p>Design und Technik werden gemeinsam gedacht, damit dein Webauftritt Bestand hat.</p></article>
           <button class="possibility possibility--call" type="button" data-open-offer data-special-reveal="right"><span>Kostenloses<br>Erstgespräch?</span><b>Jetzt anfragen →</b></button>
         </div>
       </div>
