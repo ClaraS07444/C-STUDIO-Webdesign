@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="de" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ================================================================
+       C AGENCY · SEO-BASIS
+       LAUNCH: Domain, Canonical URL, Social Preview und finale Suchbegriffe
+       sind noch offen. Diese Werte vor Veröffentlichung ersetzen.
+       ================================================================ -->
+  <title>C Agency · Individuelles Webdesign, SEO und Wartung</title>
+  <meta name="description" content="C Agency verbindet Konzept, Design und Code zu individuellen, responsiven Websites für Unternehmen und Selbstständige.">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:title" content="C Agency · Concept. Code. Creation.">
+  <meta property="og:description" content="Individuelle Websites, durchdachtes Webdesign, technische Qualität und klare Zusammenarbeit.">
+  <!-- LAUNCH: <link rel="canonical" href="https://DEINE-DOMAIN.DE/"> -->
+  <!-- LAUNCH: Open-Graph-URL und Previewbild ergänzen. -->
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='white'/%3E%3Ctext x='32' y='47' text-anchor='middle' font-family='serif' font-size='54' fill='%23111'%3EC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Zum Inhalt</a>
+
+  <!-- ================================================================
+       HEADER · Logo-Asset ist in style.css einmal als Data-URI eingebettet,
+       damit das GitHub-Root weiterhin exakt aus drei Dateien bestehen kann.
+       ================================================================ -->
+  <header class="site-header">
+    <div class="site-header__inner page-shell">
+      <nav class="desktop-nav desktop-nav--left" aria-label="Hauptnavigation links">
+        <a href="#home">Startseite</a>
+        <a href="#leistungen">Leistungen</a>
+      </nav>
+
+      <a class="brand-logo brand-logo--header" href="#home" aria-label="C Agency – zur Startseite">
+        <span class="sr-only">C Agency</span>
+      </a>
+
+      <nav class="desktop-nav desktop-nav--right" aria-label="Hauptnavigation rechts">
+        <a href="#ueber-mich">Über mich</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <button class="menu-trigger" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" data-open-mobile-menu>
+        <span>Menü</span><span class="menu-trigger__icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="mobile-menu" id="mobile-menu" aria-labelledby="mobile-menu-title">
+    <div class="mobile-menu__top">
+      <span class="brand-logo brand-logo--mobile" id="mobile-menu-title" role="img" aria-label="C Agency"></span>
+      <button class="icon-button" type="button" aria-label="Menü schließen" data-close-mobile-menu>×</button>
+    </div>
+    <nav class="mobile-menu__nav" aria-label="Mobile Hauptnavigation">
+      <a href="#home">Startseite <span aria-hidden="true">01</span></a>
+      <a href="#leistungen">Leistungen <span aria-hidden="true">02</span></a>
+      <a href="#ueber-mich">Über mich <span aria-hidden="true">03</span></a>
+      <a href="#projekte">Projekte <span aria-hidden="true">04</span></a>
+      <a href="#faq">FAQ <span aria-hidden="true">05</span></a>
+      <a href="#kontakt">Kontakt <span aria-hidden="true">06</span></a>
+    </nav>
+  </dialog>
+
+  <main id="main-content">
+    <!-- ==============================================================
+         01 · HERO UND 6-TEILIGES 3D-KARUSSELL
+         WICHTIG: Die sechs Karten enthalten ausschließlich Bildflächen.
+         Zum Austausch je .website-shot durch ein <img> oder <picture>
+         ersetzen. Vorder- und Rückfläche verwenden dasselbe Bild, damit
+         hintere Karten nie spiegelverkehrt erscheinen.
+         ============================================================== -->
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="hero__inner page-shell">
+        <div class="hero__brand" data-hero-copy>
+          <div class="brand-logo brand-logo--hero" role="img" aria-label="C Agency"></div>
+          <h1 class="hero__title" id="hero-title">Digitalagentur für Webdesign</h1>
+          <p class="hero__claim">Concept. <span>Code.</span> Creation.</p>
+        </div>
+
+        <div class="project-carousel" data-carousel role="region" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
+          <p class="sr-only" id="carousel-help">Mit Pfeiltasten, Wischgeste, horizontalem Trackpad oder den Steuerelementen durch sechs Websitebilder navigieren.</p>
+          <div class="carousel-viewport" aria-describedby="carousel-help">
+            <div class="carousel-ring" data-carousel-ring>
+              <a class="carousel-card" href="#project-01" data-carousel-card aria-label="Websiteprojekt 1 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+              <a class="carousel-card carousel-card--02" href="#project-02" data-carousel-card aria-label="Websiteprojekt 2 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+              <a class="carousel-card carousel-card--03" href="#project-03" data-carousel-card aria-label="Websiteprojekt 3 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+              <a class="carousel-card carousel-card--04" href="#concept-01" data-carousel-card aria-label="Websitekonzept 1 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+              <a class="carousel-card carousel-card--05" href="#concept-02" data-carousel-card aria-label="Websitekonzept 2 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+              <a class="carousel-card carousel-card--06" href="#concept-03" data-carousel-card aria-label="Websitekonzept 3 ansehen">
+                <span class="carousel-face"><span class="website-shot" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><span class="website-shot"><i></i><i></i><i></i><i></i></span></span>
+              </a>
+            </div>
+          </div>
+          <div class="carousel-controls" aria-label="Karussellsteuerung">
+            <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Vorheriges Websitebild">←</button>
+            <div class="carousel-dots" data-carousel-dots aria-label="Websitebild auswählen"></div>
+            <button class="carousel-arrow" type="button" data-carousel-next aria-label="Nächstes Websitebild">→</button>
+          </div>
+          <p class="sr-only" data-carousel-status aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         02 · ANGEBOTSFRAGEN UND SCHNELLNAVIGATION
+         Alle Fragen erscheinen nacheinander innerhalb desselben schwarzen
+         Kastens. Es existiert nur eine Formularinstanz auf der Website.
+         ============================================================== -->
+    <section class="project-entry" id="projektfinder" aria-labelledby="offer-heading">
+      <div class="project-entry__grid page-shell">
+        <div class="project-entry__column">
+          <div class="split-heading">
+            <h2 id="offer-heading">Ein besonderer Webauftritt. Neugierig?</h2>
+            <p>Lass dir ein unverbindliches Angebot machen!</p>
+          </div>
+
+          <div class="offer-box" data-offer-box data-state="closed">
+            <button class="offer-box__start" type="button" data-open-offer aria-expanded="false" aria-controls="offer-wizard">
+              <span>Angebotsfragen</span><span aria-hidden="true">→</span>
+            </button>
+
+            <div class="offer-wizard" id="offer-wizard" hidden>
+              <div class="offer-wizard__top">
+                <p data-offer-progress>01 / 05</p>
+                <button type="button" class="offer-wizard__close" data-close-offer aria-label="Angebotsfragen schließen">×</button>
+              </div>
+              <div class="offer-progress" aria-hidden="true"><i data-offer-progress-bar></i></div>
+              <div class="offer-error" data-offer-error role="alert" tabindex="-1" hidden></div>
+
+              <form id="project-form" class="offer-form" data-offer-form novalidate>
+                <section class="offer-step" data-offer-step="1" aria-labelledby="offer-question-1">
+                  <fieldset>
+                    <legend id="offer-question-1">Was möchtest du umsetzen?</legend>
+                    <div class="offer-choices">
+                      <label><input type="radio" name="projectType" value="Neue Website" required><span>Neue Website</span></label>
+                      <label><input type="radio" name="projectType" value="Relaunch"><span>Relaunch</span></label>
+                      <label><input type="radio" name="projectType" value="SEO / Sichtbarkeit"><span>SEO / Sichtbarkeit</span></label>
+                      <label><input type="radio" name="projectType" value="Wartung / Betreuung"><span>Wartung / Betreuung</span></label>
+                      <label><input type="radio" name="projectType" value="Noch nicht sicher"><span>Noch nicht sicher</span></label>
+                    </div>
+                  </fieldset>
+                </section>
+
+                <section class="offer-step" data-offer-step="2" aria-labelledby="offer-question-2" hidden>
+                  <fieldset>
+                    <legend id="offer-question-2">Wie groß ist dein Projekt ungefähr?</legend>
+                    <div class="offer-choices">
+                      <label><input type="radio" name="projectSize" value="Onepager" required><span>Onepager</span></label>
+                      <label><input type="radio" name="projectSize" value="Kleine Website"><span>Kleine Website</span></label>
+                      <label><input type="radio" name="projectSize" value="Unternehmenswebsite"><span>Unternehmenswebsite</span></label>
+                      <label><input type="radio" name="projectSize" value="Individuelles Projekt"><span>Individuelles Projekt</span></label>
+                      <label><input type="radio" name="projectSize" value="Noch nicht sicher"><span>Noch nicht sicher</span></label>
+                    </div>
+                  </fieldset>
+                </section>
+
+                <section class="offer-step" data-offer-step="3" aria-labelledby="offer-question-3" hidden>
+                  <fieldset>
+                    <legend id="offer-question-3">Wo stehst du gerade?</legend>
+                    <div class="offer-choices">
+                      <label><input type="radio" name="projectStatus" value="Komplett neu" required><span>Komplett neu</span></label>
+                      <label><input type="radio" name="projectStatus" value="Design / Branding vorhanden"><span>Design / Branding vorhanden</span></label>
+                      <label><input type="radio" name="projectStatus" value="Bestehende Website überarbeiten"><span>Website überarbeiten</span></label>
+                      <label><input type="radio" name="projectStatus" value="Zunächst Beratung"><span>Zunächst Beratung</span></label>
+                    </div>
+                  </fieldset>
+                </section>
+
+                <section class="offer-step" data-offer-step="4" aria-labelledby="offer-question-4" hidden>
+                  <fieldset>
+                    <legend id="offer-question-4">Was soll deine Website erreichen?</legend>
+                    <p class="offer-hint">Mehrfachauswahl möglich</p>
+                    <div class="offer-choices">
+                      <label><input type="checkbox" name="goals" value="Professioneller auftreten"><span>Professioneller auftreten</span></label>
+                      <label><input type="checkbox" name="goals" value="Mehr Anfragen"><span>Mehr Anfragen</span></label>
+                      <label><input type="checkbox" name="goals" value="Besser gefunden werden"><span>Besser gefunden werden</span></label>
+                      <label><input type="checkbox" name="goals" value="Leistungen präsentieren"><span>Leistungen präsentieren</span></label>
+                      <label><input type="checkbox" name="goals" value="Produkte verkaufen"><span>Produkte verkaufen</span></label>
+                    </div>
+                  </fieldset>
+                </section>
+
+                <section class="offer-step" data-offer-step="5" aria-labelledby="offer-question-5" hidden>
+                  <fieldset>
+                    <legend id="offer-question-5">Wie kann ich dich erreichen?</legend>
+                    <div class="offer-fields">
+                      <div><label for="contact-name">Name *</label><input id="contact-name" name="name" type="text" autocomplete="name" required></div>
+                      <div><label for="contact-email">E-Mail-Adresse *</label><input id="contact-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+                      <div class="offer-fields__full"><label for="contact-company">Unternehmen <span>(optional)</span></label><input id="contact-company" name="company" type="text" autocomplete="organization"></div>
+                      <div class="offer-fields__full"><label for="contact-message">Nachricht <span>(optional)</span></label><textarea id="contact-message" name="message" rows="3"></textarea></div>
+                    </div>
+                    <label class="offer-consent"><input type="checkbox" name="privacyConsent" required><span>Ich stimme der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage zu. <b>Datenschutztext vor Launch finalisieren.</b></span></label>
+                  </fieldset>
+                </section>
+
+                <div class="offer-actions">
+                  <button type="button" data-offer-back hidden>Zurück</button>
+                  <button type="button" data-offer-next>Weiter →</button>
+                  <button type="submit" data-offer-submit hidden>Anfrage vorbereiten →</button>
+                </div>
+                <p class="offer-status" data-offer-status role="status" aria-live="polite"></p>
+              </form>
+
+              <section class="offer-success" data-offer-success hidden tabindex="-1">
+                <p class="offer-success__eyebrow">Frontend-Prüfung erfolgreich</p>
+                <h3>Deine Anfrage ist vorbereitet.</h3>
+                <p>Es wurde noch nichts versendet. In <code>script.js</code> müssen zuerst <code>FORM_CONFIG.endpoint</code> und <code>FORM_CONFIG.recipientEmail</code> mit echten Werten konfiguriert werden.</p>
+                <button type="button" data-reset-offer>Neue Anfrage</button>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-entry__column project-entry__column--quick">
+          <div class="split-heading"><h2>Effizient gefällig?</h2><p>Kein Problem!</p></div>
+          <nav class="quick-links" aria-label="Schnellnavigation">
+            <a href="#projekte">Projekte <span aria-hidden="true">→</span></a>
+            <a href="#faq">Meist gestellte Fragen <span aria-hidden="true">→</span></a>
+            <a href="#preise">Zu den Preisen <span aria-hidden="true">→</span></a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         03 · LEISTUNGEN UND PREISE
+         Bildflächen sind klar markierte CSS-Platzhalter und können später
+         durch optimierte <picture>-Elemente ersetzt werden.
+         ============================================================== -->
+    <section class="section" id="leistungen" aria-labelledby="services-title">
+      <div class="page-shell">
+        <div class="section-heading"><h2 id="services-title">Leistungen</h2><span aria-hidden="true"></span></div>
+        <div class="service-grid">
+          <article class="service-card" data-reveal>
+            <div class="service-card__icon service-card__icon--screen" aria-hidden="true"></div>
+            <h3>Web Design</h3><p class="service-card__claim">Individuelle Websites,<br>die wirken.</p>
+            <div class="asset-placeholder asset-placeholder--service" role="img" aria-label="Platzhalter für ein Webdesign-Servicebild"><i></i><i></i><i></i></div>
+            <p>Individuelles Design, responsive Umsetzung, Frontend-Entwicklung, sinnvolle Animationen und ein technisch sauberer Launch.</p>
+            <strong>Webprojekte ab 2.000 €</strong>
+          </article>
+          <article class="service-card" data-reveal>
+            <div class="service-card__icon service-card__icon--search" aria-hidden="true"></div>
+            <h3>SEO</h3><p class="service-card__claim">Mehr Sichtbarkeit<br>für dein Business.</p>
+            <div class="asset-placeholder asset-placeholder--service asset-placeholder--chart" role="img" aria-label="Platzhalter für ein SEO-Servicebild"><i></i><i></i><i></i></div>
+            <p>Struktur, Meta-Angaben, interne Verlinkung, Alt-Texte, Indexierbarkeit und Performance-Grundlagen.</p>
+            <strong>Individuelles Angebot</strong>
+          </article>
+          <article class="service-card" data-reveal>
+            <div class="service-card__icon service-card__icon--care" aria-hidden="true"></div>
+            <h3>Wartung</h3><p class="service-card__claim">Zuverlässig und<br>langfristig.</p>
+            <div class="asset-placeholder asset-placeholder--service asset-placeholder--dark" role="img" aria-label="Platzhalter für ein Wartungs-Servicebild"><i></i><i></i><i></i></div>
+            <p>Technische Checks, Link- und Formularprüfung sowie bis zu 30 Minuten kleinere technische Arbeiten pro Monat.</p>
+            <strong>50 € / Monat</strong>
+          </article>
+        </div>
+
+        <div class="pricing" id="preise" aria-labelledby="pricing-title">
+          <div><p class="eyebrow">Transparenter Einstieg</p><h3 id="pricing-title">Eine klare Basis.<br>Ein individuelles Ergebnis.</h3><p>Domain und Hosting laufen grundsätzlich auf deinen Namen und deine Rechnung. Einrichtung und technische Verbindung kann C Agency übernehmen.</p></div>
+          <div class="pricing__list"><p><span>Webprojekte</span><strong>ab 2.000 €</strong></p><p><span>Wartung</span><strong>50 € / Monat</strong></p><p><span>SEO</span><strong>individuell</strong></p><button type="button" data-open-offer>Unverbindliches Angebot →</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         04 · ÜBER MICH · Portrait und Text teilen lückenlos einen Rahmen.
+         ============================================================== -->
+    <section class="section" id="ueber-mich" aria-labelledby="about-title">
+      <div class="page-shell">
+        <div class="section-heading"><h2 id="about-title">Über mich</h2><span aria-hidden="true"></span></div>
+        <div class="about-frame" data-reveal>
+          <div class="about-frame__portrait asset-placeholder" role="img" aria-label="Austauschbarer Platzhalter für ein Hochkant-Portrait"><span>Portrait</span><small>4:5 · Bild hier einsetzen</small></div>
+          <div class="about-frame__copy">
+            <h3>Kreativ, ehrlich und<br>lösungsorientiert.</h3>
+            <p>Ich liebe es, aus einer ersten Idee etwas zu entwickeln, das am Ende nicht nur gut aussieht, sondern wirklich funktioniert. Dabei verbinde ich kreatives Design mit durchdachter technischer Umsetzung und verliere nie aus den Augen, worauf es wirklich ankommt: eine Website, die zu deinem Unternehmen passt und sich auch genauso anfühlt.</p>
+            <p>Für mich gibt es keine Lösungen von der Stange. Jedes Unternehmen ist anders und genau das sollte man auch online sehen.</p>
+            <div class="signature" aria-label="C Agency, Web. Brand. Grow."><span>C Agency</span><small>Web. Brand. Grow.</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         05 · UNBEGRENZTE MÖGLICHKEITEN
+         ============================================================== -->
+    <section class="section" aria-labelledby="possibilities-title">
+      <div class="page-shell">
+        <div class="section-heading"><h2 id="possibilities-title">Unbegrenzte Möglichkeiten</h2><span aria-hidden="true"></span></div>
+        <div class="possibilities-grid">
+          <article class="possibility possibility--soft" data-special-reveal="left"><h3>Was du dir auch wünschst –</h3><p>keine Lösung von der Stange.</p><span aria-hidden="true">⟶</span></article>
+          <div class="spark-star" data-spark-star aria-hidden="true"><svg viewBox="0 0 240 240" focusable="false"><defs><linearGradient id="starGradient" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#d8d4cf"/><stop offset="1" stop-color="#777"/></linearGradient></defs><path d="M120 9 143 91 225 72 158 120 225 168 143 149 120 231 97 149 15 168 82 120 15 72 97 91Z" fill="url(#starGradient)" stroke="#c8c3bd"/><path d="M120 9 120 120 225 72M120 120 225 168M120 120 120 231M120 120 15 168M120 120 15 72" fill="none" stroke="#fff" stroke-opacity=".7"/></svg><span>Starke<br>Ergebnisse</span><i></i><i></i><i></i></div>
+          <article class="possibility possibility--quality" data-special-reveal="bottom"><h3>Qualität.</h3><p>haben sie schon vor vielen anderen wollen Bestand!</p></article>
+          <button class="possibility possibility--call" type="button" data-open-offer data-special-reveal="right"><span>Kostenloses<br>Erstgespräch?</span><b>Jetzt anfragen →</b></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         06 · REFERENZEN · horizontaler Scroller mit nativer Touch-,
+         JS-Drag-, Pfeilbutton- und Tastaturbedienung.
+         ============================================================== -->
+    <section class="section" id="projekte" aria-labelledby="references-title">
+      <div class="page-shell">
+        <div class="section-heading section-heading--with-controls"><h2 id="references-title">Referenzen</h2><span aria-hidden="true"></span><div class="scroller-controls"><button type="button" data-scroll-prev aria-label="Vorherige Referenz">←</button><button type="button" data-scroll-next aria-label="Nächste Referenz">→</button></div></div>
+      </div>
+      <div class="horizontal-scroller" data-horizontal-scroller role="region" aria-label="Referenzen, horizontal scrollbar" tabindex="0">
+        <div class="horizontal-track page-shell">
+          <a class="reference-card" id="project-01" href="#projekte" aria-disabled="true" data-placeholder-link>
+            <span class="asset-placeholder reference-card__image" role="img" aria-label="Platzhalter für Referenz-Screenshot 1"><i></i><i></i><i></i></span><span><b>Projektname folgt</b><small>Website · Branche</small><em>↗</em></span>
+          </a>
+          <a class="reference-card" id="project-02" href="#projekte" aria-disabled="true" data-placeholder-link>
+            <span class="asset-placeholder reference-card__image reference-card__image--dark" role="img" aria-label="Platzhalter für Referenz-Screenshot 2"><i></i><i></i><i></i></span><span><b>Projektname folgt</b><small>Website · Branche</small><em>↗</em></span>
+          </a>
+          <a class="reference-card" id="project-03" href="#projekte" aria-disabled="true" data-placeholder-link>
+            <span class="asset-placeholder reference-card__image reference-card__image--split" role="img" aria-label="Platzhalter für Referenz-Screenshot 3"><i></i><i></i><i></i></span><span><b>Projektname folgt</b><small>Website · Branche</small><em>↗</em></span>
+          </a>
+          <a class="reference-card" href="#projekte" aria-disabled="true" data-placeholder-link>
+            <span class="asset-placeholder reference-card__image" role="img" aria-label="Platzhalter für Referenz-Screenshot 4"><i></i><i></i><i></i></span><span><b>Projektname folgt</b><small>Website · Branche</small><em>↗</em></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         07 · KONZEPT-PROJEKTE · ebenfalls horizontal scrollbar.
+         ============================================================== -->
+    <section class="section" id="konzepte" aria-labelledby="concepts-title">
+      <div class="page-shell">
+        <div class="section-heading section-heading--with-controls"><h2 id="concepts-title">Konzept-Projekte</h2><span aria-hidden="true"></span><div class="scroller-controls"><button type="button" data-scroll-prev aria-label="Vorheriges Konzept">←</button><button type="button" data-scroll-next aria-label="Nächstes Konzept">→</button></div></div>
+      </div>
+      <div class="horizontal-scroller" data-horizontal-scroller role="region" aria-label="Konzept-Projekte, horizontal scrollbar" tabindex="0">
+        <div class="horizontal-track page-shell concept-track">
+          <article class="concept-card" id="concept-01"><button type="button" data-open-concept data-concept="0" aria-haspopup="dialog"><span class="asset-placeholder concept-card__image" role="img" aria-label="Platzhalter für Konzept 1"><i></i><i></i><i></i></span><span><b>Concept 01</b><small>Website · Branche</small><em>→</em></span></button></article>
+          <article class="concept-card" id="concept-02"><button type="button" data-open-concept data-concept="1" aria-haspopup="dialog"><span class="asset-placeholder concept-card__image concept-card__image--dark" role="img" aria-label="Platzhalter für Konzept 2"><i></i><i></i><i></i></span><span><b>Concept 02</b><small>Website · Branche</small><em>→</em></span></button></article>
+          <article class="concept-card" id="concept-03"><button type="button" data-open-concept data-concept="2" aria-haspopup="dialog"><span class="asset-placeholder concept-card__image concept-card__image--split" role="img" aria-label="Platzhalter für Konzept 3"><i></i><i></i><i></i></span><span><b>Concept 03</b><small>Website · Branche</small><em>→</em></span></button></article>
+          <article class="concept-card"><button type="button" data-open-concept data-concept="3" aria-haspopup="dialog"><span class="asset-placeholder concept-card__image" role="img" aria-label="Platzhalter für Konzept 4"><i></i><i></i><i></i></span><span><b>Concept 04</b><small>Website · Branche</small><em>→</em></span></button></article>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="concept-dialog" id="concept-dialog" aria-labelledby="concept-dialog-title" data-concept-dialog>
+      <div class="concept-dialog__top"><span data-concept-number>01 / Concept</span><button class="icon-button" type="button" aria-label="Konzept schließen" data-close-concept>×</button></div>
+      <div class="concept-dialog__grid"><div class="asset-placeholder concept-dialog__image" role="img" aria-label="Austauschbarer Konzeptbild-Platzhalter"><i></i><i></i><i></i></div><div><p class="eyebrow" data-concept-category>Projektkategorie folgt</p><h2 id="concept-dialog-title" data-concept-title tabindex="-1">Concept 01</h2><p data-concept-description>Hier entsteht die Case Study mit Desktop-, Mobile-, Designsystem- und UI-Detailansichten.</p><button type="button" class="button-dark" data-open-offer>Projekt in dieser Richtung anfragen →</button></div></div>
+    </dialog>
+
+    <!-- ==============================================================
+         08 · FAQ
+         ============================================================== -->
+    <section class="faq section" id="faq" aria-labelledby="faq-title">
+      <div class="page-shell">
+        <div class="section-heading"><h2 id="faq-title">FAQ</h2><span aria-hidden="true"></span></div>
+        <div class="faq-list">
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-1" id="faq-question-1"><span><small>01</small>Was kostet eine Website?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-1" role="region" aria-labelledby="faq-question-1" hidden><div><p>Webprojekte bei C Agency starten ab 2.000 €. Der endgültige Preis richtet sich nach Umfang, Anforderungen und gewünschten Funktionen.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-2" id="faq-question-2"><span><small>02</small>Wie läuft ein Projekt ab?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-2" role="region" aria-labelledby="faq-question-2" hidden><div><p>Am Anfang stehen Unternehmen, Ziele, Zielgruppe und gewünschte Wirkung. Daraus entstehen Struktur, Gestaltung und technische Umsetzung.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-3" id="faq-question-3"><span><small>03</small>Wird meine Website individuell gestaltet?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3" hidden><div><p>Ja. C Agency entwickelt Websites passend zum jeweiligen Unternehmen, Angebot und zur gewünschten Wirkung.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-4" id="faq-question-4"><span><small>04</small>Wer kümmert sich um Domain und Hosting?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-4" role="region" aria-labelledby="faq-question-4" hidden><div><p>Domain und Hosting laufen grundsätzlich auf deinen Namen und deine Rechnung. C Agency kann die technische Einrichtung übernehmen.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-5" id="faq-question-5"><span><small>05</small>Ist SEO enthalten?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-5" role="region" aria-labelledby="faq-question-5" hidden><div><p>Eine saubere technische und inhaltliche SEO-Basis kann im Websiteprojekt berücksichtigt werden.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-6" id="faq-question-6"><span><small>06</small>Was passiert nach dem Launch?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-6" role="region" aria-labelledby="faq-question-6" hidden><div><p>Auf Wunsch kann C Agency die Website technisch weiter betreuen. Größere Erweiterungen werden separat geplant.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-7" id="faq-question-7"><span><small>07</small>Was beinhaltet die Wartung?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-7" role="region" aria-labelledby="faq-question-7" hidden><div><p>Vereinbarte technische Kontrollen und kleinere technische Arbeiten bis zu 30 Minuten pro Monat. Neue Seiten und größere Änderungen sind nicht enthalten.</p></div></div></article>
+          <article><h3><button type="button" aria-expanded="false" aria-controls="faq-answer-8" id="faq-question-8"><span><small>08</small>Kann ich meine Website später erweitern?</span><i aria-hidden="true">+</i></button></h3><div class="faq-answer" id="faq-answer-8" role="region" aria-labelledby="faq-question-8" hidden><div><p>Ja. Die Website wird so geplant, dass sinnvolle Erweiterungen später ergänzt werden können.</p></div></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" id="kontakt" aria-labelledby="final-title">
+      <div class="page-shell"><p>Bereit für einen Auftritt, der einen Eindruck hinterlässt?</p><h2 id="final-title">Dein Projekt beginnt mit einer Idee.</h2><button type="button" data-open-offer>Unverbindliches Angebot →</button></div>
+    </section>
+  </main>
+
+  <!-- ================================================================
+       FOOTER UND RECHTLICHE PLATZHALTER
+       ================================================================ -->
+  <footer class="site-footer">
+    <div class="page-shell site-footer__grid"><div class="brand-logo brand-logo--footer" role="img" aria-label="C Agency"></div><nav aria-label="Footer-Navigation"><h2>Navigation</h2><a href="#home">Startseite</a><a href="#leistungen">Leistungen</a><a href="#ueber-mich">Über mich</a><a href="#projekte">Projekte</a><a href="#faq">FAQ</a></nav><nav aria-label="Rechtliches"><h2>Rechtliches</h2><button type="button" data-open-legal="imprint-dialog">Impressum</button><button type="button" data-open-legal="privacy-dialog">Datenschutz</button></nav><div><h2>Kontakt</h2><p>Geschäftliche E-Mail-Adresse vor Launch einsetzen</p></div></div>
+    <div class="page-shell site-footer__bottom"><span>© <span data-current-year></span> C Agency</span><a href="#home">Nach oben ↑</a></div>
+  </footer>
+
+  <dialog class="legal-dialog" id="imprint-dialog" aria-labelledby="imprint-title"><button class="icon-button" type="button" aria-label="Impressum schließen" data-close-dialog>×</button><p class="eyebrow">Rechtliches</p><h2 id="imprint-title" tabindex="-1">Impressum</h2><div class="launch-placeholder"><strong>Vor Livegang vollständig ergänzen.</strong><p>Geschäftsbezeichnung, verantwortliche Person, ladungsfähige Anschrift, geschäftliche E-Mail-Adresse und weitere Pflichtangaben sind noch offen.</p></div></dialog>
+  <dialog class="legal-dialog" id="privacy-dialog" aria-labelledby="privacy-title"><button class="icon-button" type="button" aria-label="Datenschutz schließen" data-close-dialog>×</button><p class="eyebrow">Rechtliches</p><h2 id="privacy-title" tabindex="-1">Datenschutzerklärung</h2><div class="launch-placeholder"><strong>Vor Livegang dienstbezogen erstellen.</strong><p>Formularbackend, Empfängeradresse, Datenwege, Speicherdauer, Spam-Schutz, Hosting und mögliche Trackingdienste müssen zuerst feststehen.</p></div></dialog>
+
+  <!-- GSAP Core → ScrollTrigger → eigener Code. Fällt das CDN aus, bleiben
+       alle Kernfunktionen durch Progressive Enhancement nutzbar. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
