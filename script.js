@@ -34,19 +34,10 @@
     requestTimeoutMs: 12000
   });
 
-  const CAROUSEL_CONFIG = Object.freeze({
-    cardCount: 6,
-    angleStep: 60,
-    dragDegreesPerPixel: 0.22,
-    dragThresholdPx: 34,
-    wheelThreshold: 12,
-    snapDuration: 0.72
-  });
 
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
-  const modulo = (value, length) => ((value % length) + length) % length;
   const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
   const isReducedMotion = () => reducedMotionQuery.matches;
 
@@ -142,172 +133,159 @@
      jeder Karte zeigen dieselbe reine Bildfläche; Text-Metadaten existieren
      nur als Accessible Name am Link und nicht sichtbar auf der Karte.
      ==================================================================== */
-  function initProjectCarousel() {
-    const carousel = qs("[data-carousel]");
+  function initHeroCarousel() {
+    const carousel = qs(".project-carousel");
     if (!carousel) return;
 
-    const ring = qs("[data-carousel-ring]", carousel);
-    const viewport = qs(".carousel-viewport", carousel);
-    const cards = qsa("[data-carousel-card]", carousel);
-    const dotsContainer = qs("[data-carousel-dots]", carousel);
-    const previousButton = qs("[data-carousel-prev]", carousel);
-    const nextButton = qs("[data-carousel-next]", carousel);
-    const status = qs("[data-carousel-status]", carousel);
-    if (!ring || !viewport || cards.length !== CAROUSEL_CONFIG.cardCount) return;
+    const stage = qs(".project-carousel__stage", carousel);
+    const ring = qs(".project-carousel__ring", carousel);
+    const cards = qsa("article.project-card", carousel);
+    const previousButton = qs(".carousel-arrow--previous", carousel);
+    const nextButton = qs(".carousel-arrow--next", carousel);
+    const dots = qsa(".carousel-dot", carousel);
+    const status = qs(".project-carousel__status", carousel);
 
-    const state = {
-      activeIndex: 0,
-      rotation: 0,
-      pointerId: null,
-      dragStartX: 0,
-      dragStartRotation: 0,
-      dragDistance: 0,
-      isDragging: false,
-      suppressClick: false,
-      wheelLocked: false
-    };
-    const hasGSAP = Boolean(window.gsap);
+    const CARD_COUNT = 6;
+    const ANGLE_PER_CARD = 60;
+    const DRAG_DEGREES_PER_PIXEL = .22;
+    const DRAG_THRESHOLD = 7;
+    const SNAP_DURATION = 720;
 
-    cards.forEach((card, index) => {
-      card.style.transform = `rotateY(${index * CAROUSEL_CONFIG.angleStep}deg) translateZ(var(--carousel-radius))`;
-      card.dataset.index = String(index);
-    });
+    if (!stage || !ring || cards.length !== CARD_COUNT || dots.length !== CARD_COUNT) return;
 
-    function createDots() {
-      const fragment = document.createDocumentFragment();
+    let currentSlide = 0;
+    let currentRotation = 0;
+    let pointerId = null;
+    let dragStartX = 0;
+    let dragStartRotation = 0;
+    let dragDistance = 0;
+    let isDragging = false;
+    let suppressClick = false;
+
+    function normaliseIndex(index) {
+      return ((index % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
+    }
+
+    function getTilt() {
+      const tilt = parseFloat(getComputedStyle(carousel).getPropertyValue("--carousel-tilt"));
+      return Number.isFinite(tilt) ? tilt : -8;
+    }
+
+    function updateInterface() {
       cards.forEach((card, index) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "carousel-dot";
-        button.dataset.carouselDot = String(index);
-        button.setAttribute("aria-label", `Websitebild ${index + 1} anzeigen`);
-        button.addEventListener("click", () => snapTo(index));
-        fragment.appendChild(button);
-      });
-      dotsContainer?.replaceChildren(fragment);
-    }
-
-    function setRingRotation(rotation, animate = true) {
-      state.rotation = rotation;
-      if (hasGSAP) {
-        window.gsap.to(ring, {
-          xPercent: -50,
-          yPercent: -50,
-          rotationY: rotation,
-          duration: animate && !isReducedMotion() ? CAROUSEL_CONFIG.snapDuration : 0,
-          ease: "power3.out",
-          overwrite: "auto"
-        });
-      } else {
-        ring.style.transform = `translate(-50%, -50%) rotateY(${rotation}deg)`;
-      }
-    }
-
-    function setImmediateRotation(rotation) {
-      state.rotation = rotation;
-      if (hasGSAP) window.gsap.set(ring, { xPercent: -50, yPercent: -50, rotationY: rotation });
-      else ring.style.transform = `translate(-50%, -50%) rotateY(${rotation}deg)`;
-    }
-
-    function updateState() {
-      cards.forEach((card, index) => {
-        const relative = modulo(index - state.activeIndex, cards.length);
-        const distance = Math.min(relative, cards.length - relative);
-        const isActive = index === state.activeIndex;
+        const relative = normaliseIndex(index - currentSlide);
+        const distance = Math.min(relative, CARD_COUNT - relative);
+        const isActive = index === currentSlide;
         card.classList.toggle("is-active", isActive);
-        card.setAttribute("aria-hidden", String(!isActive));
-        card.tabIndex = isActive ? 0 : -1;
-        card.style.opacity = String(distance === 0 ? 1 : distance === 1 ? 0.76 : 0.38);
-        card.style.zIndex = String(10 - distance);
+        card.classList.toggle("is-near", distance === 1);
+        card.classList.toggle("is-far-side", distance === 2);
+        card.classList.toggle("is-rear", distance === 3);
+        card.setAttribute("aria-current", isActive ? "true" : "false");
       });
 
-      qsa("[data-carousel-dot]", carousel).forEach((dot, index) => {
-        const isActive = index === state.activeIndex;
+      dots.forEach((dot, index) => {
+        const isActive = index === currentSlide;
         dot.classList.toggle("is-active", isActive);
         dot.setAttribute("aria-current", isActive ? "true" : "false");
       });
-      if (status) status.textContent = `Websitebild ${state.activeIndex + 1} von ${cards.length}`;
+
+      if (status) status.textContent = `Projekt ${currentSlide + 1} von ${CARD_COUNT}`;
     }
 
-    function snapTo(index, animate = true) {
-      state.activeIndex = modulo(index, cards.length);
-      setRingRotation(-state.activeIndex * CAROUSEL_CONFIG.angleStep, animate);
-      updateState();
+    /* Verbindliche Kernfunktion aus der Nutzervorlage. Die rotateX-Neigung
+       bleibt bei jeder Rotation erhalten. Reduced Motion setzt nur die Dauer
+       auf 0 und entfernt niemals die räumliche Ringgeometrie. */
+    function setRotation(rotation, animate = true) {
+      currentRotation = rotation;
+      const duration = animate && !isReducedMotion() ? SNAP_DURATION : 0;
+      ring.style.transition = `transform ${duration}ms cubic-bezier(.22, 1, .36, 1)`;
+      ring.style.transform = `translate(-50%, -50%) rotateX(${getTilt()}deg) rotateY(${rotation}deg)`;
     }
 
-    const step = (direction) => snapTo(state.activeIndex + direction);
+    /* Verbindliche Kernfunktion aus der Nutzervorlage. Das Ziel wird auf die
+       nächstgelegene äquivalente 360°-Position abgebildet, damit beim Wechsel
+       zwischen Karte 6 und 1 kein unnötiger Vollkreis entsteht. */
+    function goToSlide(index, animate = true) {
+      currentSlide = normaliseIndex(index);
+      const baseRotation = -currentSlide * ANGLE_PER_CARD;
+      const nearestRotation = baseRotation + 360 * Math.round((currentRotation - baseRotation) / 360);
+      setRotation(nearestRotation, animate);
+      updateInterface();
+    }
+
+    function snapToNearestCard() {
+      const nearestStep = Math.round(-currentRotation / ANGLE_PER_CARD);
+      currentSlide = normaliseIndex(nearestStep);
+      setRotation(-nearestStep * ANGLE_PER_CARD, true);
+      updateInterface();
+    }
 
     function onPointerDown(event) {
-      if (event.button !== 0 || event.target.closest("button")) return;
-      state.pointerId = event.pointerId;
-      state.dragStartX = event.clientX;
-      state.dragStartRotation = -state.activeIndex * CAROUSEL_CONFIG.angleStep;
-      state.dragDistance = 0;
-      state.isDragging = true;
-      state.suppressClick = false;
-      viewport.setPointerCapture?.(event.pointerId);
+      if (event.button !== 0) return;
+      pointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartRotation = currentRotation;
+      dragDistance = 0;
+      isDragging = true;
+      suppressClick = false;
+      stage.classList.add("is-dragging");
+      ring.style.transition = "none";
+      stage.setPointerCapture?.(pointerId);
     }
 
     function onPointerMove(event) {
-      if (!state.isDragging || event.pointerId !== state.pointerId) return;
-      const deltaX = event.clientX - state.dragStartX;
-      state.dragDistance = deltaX;
-      if (Math.abs(deltaX) > 6) state.suppressClick = true;
-      setImmediateRotation(state.dragStartRotation + deltaX * CAROUSEL_CONFIG.dragDegreesPerPixel);
+      if (!isDragging || event.pointerId !== pointerId) return;
+      dragDistance = event.clientX - dragStartX;
+      if (Math.abs(dragDistance) > DRAG_THRESHOLD) suppressClick = true;
+      setRotation(dragStartRotation + dragDistance * DRAG_DEGREES_PER_PIXEL, false);
     }
 
     function onPointerEnd(event) {
-      if (!state.isDragging || event.pointerId !== state.pointerId) return;
-      state.isDragging = false;
-      viewport.releasePointerCapture?.(event.pointerId);
-      if (Math.abs(state.dragDistance) >= CAROUSEL_CONFIG.dragThresholdPx) step(state.dragDistance < 0 ? 1 : -1);
-      else snapTo(state.activeIndex);
-      window.setTimeout(() => { state.suppressClick = false; }, 0);
-    }
-
-    function onWheel(event) {
-      const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.15;
-      if (!horizontalIntent || Math.abs(event.deltaX) < CAROUSEL_CONFIG.wheelThreshold) return;
-      event.preventDefault();
-      if (state.wheelLocked) return;
-      state.wheelLocked = true;
-      step(event.deltaX > 0 ? 1 : -1);
-      window.setTimeout(() => { state.wheelLocked = false; }, 380);
+      if (!isDragging || event.pointerId !== pointerId) return;
+      isDragging = false;
+      stage.classList.remove("is-dragging");
+      if (stage.hasPointerCapture?.(pointerId)) stage.releasePointerCapture(pointerId);
+      pointerId = null;
+      snapToNearestCard();
+      window.setTimeout(() => { suppressClick = false; }, 0);
     }
 
     function onKeydown(event) {
       const actions = {
-        ArrowLeft: () => step(-1),
-        ArrowRight: () => step(1),
-        Home: () => snapTo(0),
-        End: () => snapTo(cards.length - 1)
+        ArrowLeft: () => goToSlide(currentSlide - 1),
+        ArrowRight: () => goToSlide(currentSlide + 1),
+        Home: () => goToSlide(0),
+        End: () => goToSlide(CARD_COUNT - 1)
       };
-      if (!actions[event.key]) return;
+      const action = actions[event.key];
+      if (!action) return;
       event.preventDefault();
-      actions[event.key]();
+      action();
     }
 
-    createDots();
-    previousButton?.addEventListener("click", () => step(-1));
-    nextButton?.addEventListener("click", () => step(1));
+    previousButton?.addEventListener("click", () => goToSlide(currentSlide - 1));
+    nextButton?.addEventListener("click", () => goToSlide(currentSlide + 1));
+    dots.forEach((dot, index) => dot.addEventListener("click", () => goToSlide(index)));
     carousel.addEventListener("keydown", onKeydown);
-    viewport.addEventListener("pointerdown", onPointerDown);
-    viewport.addEventListener("pointermove", onPointerMove);
-    viewport.addEventListener("pointerup", onPointerEnd);
-    viewport.addEventListener("pointercancel", onPointerEnd);
-    viewport.addEventListener("wheel", onWheel, { passive: false });
-    cards.forEach((card) => card.addEventListener("click", (event) => {
-      if (Number(card.dataset.index) !== state.activeIndex || state.suppressClick) event.preventDefault();
-    }));
+    stage.addEventListener("dragstart", (event) => event.preventDefault());
+    stage.addEventListener("pointerdown", onPointerDown);
+    stage.addEventListener("pointermove", onPointerMove);
+    stage.addEventListener("pointerup", onPointerEnd);
+    stage.addEventListener("pointercancel", onPointerEnd);
 
-    setImmediateRotation(0);
-    updateState();
+    /* Klickunterdrückung ist trotz nicht verlinkter article-Karten enthalten,
+       damit spätere Projektlinks nach einer Drag-Geste nicht versehentlich
+       ausgelöst werden. */
+    carousel.addEventListener("click", (event) => {
+      if (!suppressClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
 
-    if (hasGSAP && !isReducedMotion()) {
-      window.gsap.timeline({ delay: 1 })
-        .to(ring, { rotationY: 7, duration: .4, ease: "power2.out" })
-        .to(ring, { rotationY: 0, duration: .62, ease: "power3.out" });
-    }
+    window.addEventListener("resize", () => setRotation(currentRotation, false), { passive: true });
+
+    setRotation(0, false);
+    updateInterface();
   }
 
   /* ====================================================================
@@ -660,24 +638,44 @@
   }
 
   /* ====================================================================
-     07 · GSAP, FUNKELSTERN UND REDUCED MOTION
+     07 · GSAP, WIEDERHOLBARE VIEWPORT-REVEALS, STAR-SCHIMMER UND
+          REDUCED MOTION
+
+     Transform-Zuständigkeiten:
+     - GSAP bewegt die vier äußeren Möglichkeiten nur beim Eintritt.
+     - Der Sternschimmer bewegt ausschließlich .spark-star__shine.
+     - Die dauerhafte Qualitäts-Randanimation bleibt vollständig in CSS.
+     Dadurch konkurrieren keine GSAP- und CSS-Transforms am selben Layer.
      ==================================================================== */
   function initSparkStar() {
     const star = qs("[data-spark-star]");
     if (!star || !window.gsap || isReducedMotion()) return;
-    const sparkles = qsa("i", star);
+    const shine = qs("[data-star-shimmer]", star);
+    if (!shine) return;
     let running = false;
-    const sparkle = () => {
+
+    const playShimmer = () => {
       if (running) return;
       running = true;
-      window.gsap.timeline({ onComplete: () => { running = false; } })
-        .to(star, { scale: 1.05, filter: "brightness(1.15) drop-shadow(0 1.3rem 1.2rem rgba(11,11,11,.2))", duration: .22 })
-        .to(sparkles, { autoAlpha: 1, scale: 1.6, stagger: .05, duration: .15 }, "<")
-        .to(sparkles, { autoAlpha: 0, scale: .5, stagger: .04, duration: .22 })
-        .to(star, { scale: 1, filter: "brightness(1) drop-shadow(0 1.2rem 1rem rgba(11,11,11,.18))", duration: .3 }, "<");
+      window.gsap.killTweensOf(shine);
+      window.gsap.fromTo(shine,
+        { xPercent: 0, autoAlpha: 0 },
+        {
+          xPercent: 620,
+          autoAlpha: 1,
+          duration: 1.05,
+          ease: "power2.inOut",
+          onComplete: () => {
+            window.gsap.set(shine, { autoAlpha: 0, xPercent: 0 });
+            running = false;
+          }
+        }
+      );
     };
-    star.addEventListener("pointerenter", sparkle);
-    star._sparkle = sparkle;
+
+    star.addEventListener("pointerenter", playShimmer);
+    star.addEventListener("focus", playShimmer);
+    star._playShimmer = playShimmer;
   }
 
   function initScrollAnimations() {
@@ -687,22 +685,62 @@
     qsa("[data-reveal]").forEach((element) => {
       window.gsap.from(element, { autoAlpha: 0, y: 30, duration: .85, ease: "power3.out", clearProps: "transform,opacity,visibility", scrollTrigger: { trigger: element, start: "top 88%", once: true } });
     });
+    /* Wiederholbar statt once:true: Nach jedem vollständigen Verlassen wird
+       das Element zurückgesetzt. Beim erneuten Eintritt von oben oder unten
+       spielt genau eine Sequenz ab und bleibt danach ruhig. */
     qsa("[data-special-reveal]").forEach((element) => {
       const direction = element.dataset.specialReveal;
-      const offset = direction === "left" ? { x: -80, y: 0 } : direction === "right" ? { x: 80, y: 0 } : { x: 0, y: 70 };
-      window.gsap.from(element, { autoAlpha: 0, ...offset, duration: .9, ease: "power3.out", clearProps: "transform,opacity,visibility", scrollTrigger: { trigger: element, start: "top 86%", once: true } });
+      const offset = direction === "left"
+        ? { x: -80, y: 0, scale: 1, rotation: 0 }
+        : direction === "right"
+          ? { x: 80, y: 0, scale: 1, rotation: 0 }
+          : direction === "star"
+            ? { x: 0, y: 30, scale: .82, rotation: -7 }
+            : { x: 0, y: 70, scale: 1, rotation: 0 };
+
+      const reset = () => window.gsap.set(element, { autoAlpha: 0, ...offset });
+      const play = () => {
+        window.gsap.killTweensOf(element);
+        window.gsap.to(element, {
+          autoAlpha: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          rotation: 0,
+          duration: .9,
+          ease: "power3.out",
+          overwrite: "auto",
+          clearProps: "transform,opacity,visibility"
+        });
+        if (element.matches("[data-spark-star]")) {
+          window.setTimeout(() => element._playShimmer?.(), 240);
+        }
+      };
+
+      reset();
+      window.ScrollTrigger.create({
+        trigger: element,
+        start: "top 86%",
+        end: "bottom 12%",
+        onEnter: play,
+        onEnterBack: play,
+        onLeave: reset,
+        onLeaveBack: reset
+      });
     });
 
     const heroCopy = qs("[data-hero-copy]");
-    const carousel = qs("[data-carousel]");
-    if (heroCopy && carousel) {
+    if (heroCopy) {
       window.gsap.timeline({ defaults: { ease: "power3.out" } })
-        .from(qsa(":scope > *", heroCopy), { autoAlpha: 0, y: 24, duration: .75, stagger: .08 })
-        .from(carousel, { autoAlpha: 0, x: 45, rotationY: -4, duration: 1 }, "<.12");
+        .from(qsa(":scope > *", heroCopy), { autoAlpha: 0, y: 24, duration: .75, stagger: .08 });
     }
 
-    const star = qs("[data-spark-star]");
-    if (star?._sparkle) window.ScrollTrigger.create({ trigger: star, start: "top 82%", once: true, onEnter: () => star._sparkle() });
+    /* Technisch notwendige Abweichung von der globalen Hero-Animation:
+       .project-carousel und .project-carousel__ring werden hier absichtlich
+       nicht von GSAP transformiert. setRotation() ist der einzige Schreiber
+       für die Ring-Transformation; konkurrierende GSAP-Matrizen würden den
+       räumlichen 3D-Kontext überschreiben oder optisch abflachen. */
+
   }
 
   function initReducedMotionListener() {
@@ -726,7 +764,7 @@
     initCurrentYear();
     initPlaceholderLinks();
     initMobileNavigation();
-    initProjectCarousel();
+    initHeroCarousel();
     initOfferWizard();
     initHorizontalScrollers();
     initFAQ();
