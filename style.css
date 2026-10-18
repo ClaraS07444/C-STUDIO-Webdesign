@@ -118,8 +118,11 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
    Fassung ungefähr halbiert. Zweispaltenraster und horizontale Positionen
    von Logo und 3D-Ring bleiben unverändert. */
 .hero { min-height: calc(100svh - var(--header-height)); display: grid; align-items: start; overflow-x: clip; padding-block: clamp(1.5rem, 3.5vw, 3rem); border-bottom: 1px solid var(--ink); }
-.hero__inner { display: grid; grid-template-columns: minmax(18rem, .72fr) minmax(0, 1.28fr); align-items: start; gap: clamp(2rem, 5vw, 6rem); }
-.hero__brand { min-width: 0; }
+/* Gemeinsame Desktop-Unterkante: Beide Spalten erhalten dieselbe verfügbare
+   Hero-Höhe und richten ihre vollständige Komposition unten aus. Die linke
+   Spalte endet nach dem Claim, die rechte nach Controls/Dots/Hinweis. */
+.hero__inner { display: grid; min-height: calc(100svh - var(--header-height) - clamp(3rem, 7vw, 6rem)); grid-template-columns: minmax(18rem, .72fr) minmax(0, 1.28fr); align-items: stretch; gap: clamp(2rem, 5vw, 6rem); }
+.hero__brand { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; align-self: stretch; }
 .brand-logo--hero { width: min(100%, 34rem); aspect-ratio: 1.8 / 1; background-position: left center; }
 .hero__title { margin: 2.25rem 0 0; font-size: clamp(.7rem, 1.2vw, .95rem); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .hero__claim { margin: 2.5rem 0 0; font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw, 2.4rem); letter-spacing: -.02em; }
@@ -127,14 +130,20 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .project-carousel {
   /* Die Kamera ist bewusst deutlich räumlicher als eine Coverflow-Ansicht:
      kleineres Perspective-Verhältnis + großer Radius + starke X-Neigung. */
-  --carousel-card-width: clamp(13.5rem, 16vw, 16rem);
+  /* Kompakte Ringgeometrie: Der kleinere Radius schließt die freie Mitte,
+     während eine etwas breitere Karte und stärkere Perspektive sichtbare
+     Überlappung erzeugen. Die 60°-Anordnung und Z-Tiefe bleiben erhalten. */
+  --carousel-card-width: clamp(15rem, 19vw, 19rem);
   --carousel-card-height: calc(var(--carousel-card-width) * .625);
   --carousel-card-angle: 60deg;
-  --carousel-radius: clamp(20rem, 26vw, 24rem);
+  --carousel-radius: clamp(10.25rem, 14vw, 13.5rem);
   --carousel-tilt: -20deg;
-  --carousel-perspective: 64rem;
+  --carousel-perspective: 52rem;
   position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
   min-width: 0;
+  align-self: stretch;
   outline: none;
   user-select: none;
 }
@@ -156,7 +165,8 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 
 .project-carousel__stage {
   position: relative;
-  height: clamp(35rem, 54vw, 46rem);
+  min-height: 0;
+  height: auto;
   /* visible ist hier absichtlich: sonst werden die stark angewinkelten
      60°-Seitenkarten am Rand der rechten Hero-Spalte abgeschnitten. Der
      globale body-Overflow bleibt weiterhin geclippt. */
@@ -171,7 +181,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 
 .project-carousel__ring {
   position: absolute;
-  top: 48%;
+  top: 50%;
   left: 50%;
   width: var(--carousel-card-width);
   height: var(--carousel-card-height);
@@ -253,7 +263,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   align-items: center;
   gap: 1rem;
   max-width: 26rem;
-  margin: -1.25rem auto 0;
+  margin: -2.15rem auto 0;
 }
 
 .carousel-arrow {
@@ -483,7 +493,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .site-header__inner { grid-template-columns: 1fr 7rem 1fr; }
   .desktop-nav { gap: 1.5rem; }.desktop-nav--left { padding-right: 1rem; }.desktop-nav--right { padding-left: 1rem; }
   .hero__inner { grid-template-columns: minmax(15rem,.65fr) minmax(0,1.35fr); gap: 1.5rem; }
-  .project-carousel { --carousel-card-width: clamp(11.5rem, 19vw, 13.5rem); --carousel-radius: clamp(15.5rem, 28vw, 19rem); --carousel-tilt: -18deg; --carousel-perspective: 54rem; }
+  .project-carousel { --carousel-card-width: clamp(12.75rem, 21vw, 15.25rem); --carousel-radius: clamp(7.5rem, 12vw, 9.25rem); --carousel-tilt: -18deg; --carousel-perspective: 46rem; }
   .possibilities-grid { grid-template-columns: 1fr 1fr; }
   .spark-star { grid-column: 2; grid-row: 1; }.possibility--quality { grid-column: 1; }.possibility--call { grid-column: 2; grid-row: 2; justify-self: center; }
   .site-footer__grid { grid-template-columns: 1.4fr repeat(3,1fr); gap: 2rem; }
@@ -496,15 +506,15 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .desktop-nav { display: none; }.brand-logo--header { width: 6.2rem; height: 3.8rem; margin-left: -.5rem; background-position: left center; }.menu-trigger { display: flex; }
   .section-heading { gap: 1rem; margin-bottom: 2.4rem; }.section-heading--with-controls { grid-template-columns: auto 1fr; }.section-heading--with-controls .scroller-controls { grid-column: 1 / -1; justify-self: end; }
   .hero { min-height: auto; padding-top: 3rem; }
-  .hero__inner { display: block; }
+  .hero__inner { display: block; min-height: 0; }
   .hero__brand { margin-bottom: 2.5rem; }
   .brand-logo--hero { width: min(100%, 24rem); aspect-ratio: 1.7; }
   .hero__title { font-size: .68rem; }
   .hero__claim { font-size: clamp(1.5rem, 8vw, 2rem); }
-  .project-carousel { --carousel-card-width: min(43vw, 10.75rem); --carousel-radius: min(46vw, 11.5rem); --carousel-tilt: -16deg; --carousel-perspective: 40rem; width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
+  .project-carousel { --carousel-card-width: min(49vw, 12rem); --carousel-radius: min(27vw, 6.75rem); --carousel-tilt: -16deg; --carousel-perspective: 38rem; display: block; width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
   .carousel-hint { top: .4rem; max-width: calc(100% - 2rem); overflow: hidden; text-overflow: ellipsis; }
   .project-carousel__stage { height: 31rem; }
-  .project-carousel__controls { width: calc(100% - 2.5rem); margin-top: -.5rem; }
+  .project-carousel__controls { width: calc(100% - 2.5rem); margin-top: -.85rem; }
   .project-entry__grid { grid-template-columns: 1fr; }
   .project-entry__column { padding-right: 0; }.project-entry__column--quick { margin-top: 3rem; padding: 3rem 0 0; border-top: 1px solid var(--ink); border-left: 0; }
   .offer-choices, .offer-fields { grid-template-columns: 1fr; }.offer-fields__full { grid-column: auto; }.offer-actions { flex-wrap: wrap; }.offer-actions button { flex: 1 1 8rem; }
@@ -524,7 +534,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 @media (max-width: 25rem) {
   :root { --page: calc(100% - 2rem); }
   .hero__claim span { padding-inline: .25em; }
-  .project-carousel { --carousel-card-width: 9.5rem; --carousel-radius: 10rem; --carousel-tilt: -15deg; --carousel-perspective: 36rem; }
+  .project-carousel { --carousel-card-width: 10.25rem; --carousel-radius: 5.75rem; --carousel-tilt: -15deg; --carousel-perspective: 34rem; }
   .carousel-dots { gap: .2rem; }.carousel-dot { width: 1rem; }
   .offer-box__start { min-height: 11rem; flex-direction: column; gap: 1rem; }.offer-wizard { padding: 1rem; }
   .site-footer__grid { grid-template-columns: 1fr; }.brand-logo--footer, .site-footer__grid > div:last-child { grid-column: auto; }
