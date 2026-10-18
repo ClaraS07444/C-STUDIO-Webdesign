@@ -91,12 +91,12 @@
              3D-FIX: opacity/filter dürfen nicht auf article.project-card
              liegen, da sie sonst den preserve-3d-Kontext abflachen. Zustands-
              Opacity wird ausschließlich auf Front- und Rückfläche gesetzt.
-             OFFENE RINGGEOMETRIE: Der größere translateZ-Radius hält die
-             sechs 60°-Karten räumlich voneinander getrennt. Branding und
-             Karussell werden in ihren Hero-Spalten unabhängig zentriert.
+             MOCKUP-GEOMETRIE: Ein kompakter translateZ-Radius staffelt die
+             sechs reinen Bildkarten überlappend hinter der Vorderkarte.
+             Der Bedienhinweis bleibt ausschließlich für Screenreader.
              ============================================================ -->
         <section class="project-carousel" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
-          <p class="carousel-hint" id="carousel-hint">Ziehen, wischen oder mit den Pfeiltasten navigieren</p>
+          <p class="sr-only carousel-hint" id="carousel-hint">Ziehen, wischen oder mit den Pfeiltasten navigieren</p>
 
           <div class="project-carousel__stage" aria-describedby="carousel-hint">
             <div class="project-carousel__ring">

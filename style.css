@@ -114,12 +114,10 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 /* ======================================================================
    03 · HERO UND 3D-KARUSSELL
    ====================================================================== */
-/* Desktop/Laptop: Der obere Hero-Weißraum ist gegenüber der vorherigen
-   Fassung ungefähr halbiert. Zweispaltenraster und horizontale Positionen
-   von Logo und 3D-Ring bleiben unverändert. */
-.hero { min-height: calc(100svh - var(--header-height)); display: grid; align-items: center; overflow-x: clip; padding-block: clamp(1.5rem, 3.5vw, 3rem); border-bottom: 1px solid var(--ink); }
-/* Unabhängige Hero-Zentrierung: Branding und offener 3D-Ring stehen in den
-   bestehenden Spalten jeweils vertikal mittig; keine gemeinsame Unterkante. */
+/* Kompakter Hero: geringere Mindesthöhe und engeres vertikales Padding
+   reduzieren den Weißraum, ohne Header, Branding oder Controls zu quetschen. */
+.hero { min-height: clamp(35rem, 70svh, 46rem); display: grid; align-items: center; overflow-x: clip; padding-block: clamp(1rem, 2.2vw, 2rem); border-bottom: 1px solid var(--ink); }
+/* Branding und kompakte Karussellkomposition bleiben unabhängig zentriert. */
 .hero__inner { display: grid; grid-template-columns: minmax(18rem, .72fr) minmax(0, 1.28fr); align-items: center; gap: clamp(2rem, 5vw, 6rem); }
 .hero__brand { display: flex; min-width: 0; flex-direction: column; justify-content: center; align-self: center; }
 .brand-logo--hero { width: min(100%, 34rem); aspect-ratio: 1.8 / 1; background-position: left center; }
@@ -127,16 +125,14 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .hero__claim { margin: 2.5rem 0 0; font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw, 2.4rem); letter-spacing: -.02em; }
 .hero__claim span { padding-inline: .55em; }
 .project-carousel {
-  /* Die Kamera ist bewusst deutlich räumlicher als eine Coverflow-Ansicht:
-     kleineres Perspective-Verhältnis + großer Radius + starke X-Neigung. */
-  /* Offene Ringgeometrie: Der größere translateZ-Radius und die moderate
-     Kartenbreite schaffen wieder klaren Abstand zwischen den 60°-Karten. */
-  --carousel-card-width: clamp(13.5rem, 16vw, 16rem);
+  /* Mockup-Stil: breitere Karten, kleiner Radius und eine ruhige Neigung
+     stapeln die sechs 60°-Positionen sichtbar hinter der Vorderkarte. */
+  --carousel-card-width: clamp(16rem, 20vw, 20rem);
   --carousel-card-height: calc(var(--carousel-card-width) * .625);
   --carousel-card-angle: 60deg;
-  --carousel-radius: clamp(20rem, 26vw, 24rem);
-  --carousel-tilt: -20deg;
-  --carousel-perspective: 64rem;
+  --carousel-radius: clamp(10.5rem, 14vw, 13.5rem);
+  --carousel-tilt: -8deg;
+  --carousel-perspective: 82rem;
   position: relative;
   min-width: 0;
   align-self: center;
@@ -144,24 +140,12 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   user-select: none;
 }
 
-.carousel-hint {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  z-index: 3;
-  margin: 0;
-  color: var(--muted);
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
+/* Der Bedienhinweis trägt zusätzlich .sr-only und bleibt deshalb rein für
+   assistive Technologien verfügbar; es gibt keine sichtbare Hint-Regel. */
 
 .project-carousel__stage {
   position: relative;
-  height: clamp(35rem, 54vw, 46rem);
+  height: clamp(25rem, 34vw, 31rem);
   /* visible ist hier absichtlich: sonst werden die stark angewinkelten
      60°-Seitenkarten am Rand der rechten Hero-Spalte abgeschnitten. Der
      globale body-Overflow bleibt weiterhin geclippt. */
@@ -176,7 +160,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 
 .project-carousel__ring {
   position: absolute;
-  top: 48%;
+  top: 50%;
   left: 50%;
   width: var(--carousel-card-width);
   height: var(--carousel-card-height);
@@ -258,7 +242,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   align-items: center;
   gap: 1rem;
   max-width: 26rem;
-  margin: -1.25rem auto 0;
+  margin: -1.5rem auto 0;
 }
 
 .carousel-arrow {
@@ -408,14 +392,13 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 .spark-star__shine { position: absolute; top: -25%; bottom: -25%; left: -65%; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,248,213,.08), rgba(255,255,255,.82), rgba(255,236,164,.18), transparent); filter: blur(.12rem); opacity: 0; transform: skewX(-17deg); will-change: transform, opacity; }
 .spark-star__label { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; color: var(--paper); font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-align: center; text-shadow: 0 1px .35rem rgba(0,0,0,.75); }
 
-/* QUALITÄT: Die diagonal geteilte Schwarz-Weiß-Fläche bleibt semantisch ein
-   einziger Textblock. Weiße Schrift mit mix-blend-mode:difference invertiert
-   robust zu Schwarz über der weißen Hälfte und bleibt Weiß über Schwarz.
-   Der permanente Randakzent ist weiterhin ausschließlich CSS-basiert. */
+/* QUALITÄT: Einheitlich schwarze Karte mit weißer Schrift und tiefem,
+   weichem Schatten. Der dezente Randakzent bleibt ausschließlich CSS-basiert
+   und wird bei Reduced Motion statisch dargestellt. */
 @property --quality-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-.possibility--quality { --quality-angle: 0deg; position: relative; min-height: 15rem; padding: clamp(1.5rem, 3vw, 3rem); border-radius: .15rem; background: linear-gradient(135deg, var(--ink) 0 49.6%, var(--paper) 50.4% 100%); color: var(--paper); isolation: isolate; box-shadow: 0 1.15rem 2.5rem rgba(11,11,11,.16); transition: transform .25s var(--ease); }
+.possibility--quality { --quality-angle: 0deg; position: relative; min-height: 15rem; padding: clamp(1.5rem, 3vw, 3rem); border-radius: .15rem; background: var(--ink); color: var(--paper); isolation: isolate; box-shadow: 0 1.35rem 3rem rgba(0,0,0,.28); transition: transform .25s var(--ease); }
 .possibility--quality::before { position: absolute; inset: -2px; z-index: 0; padding: 2px; border-radius: inherit; background: conic-gradient(from var(--quality-angle), transparent 0 64%, rgba(255,239,199,.18) 72%, rgba(255,246,217,.9) 78%, rgba(205,151,103,.28) 86%, transparent 94%); content: ""; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; animation: quality-border-orbit 6s linear infinite; }
-.possibility--quality > * { position: relative; z-index: 1; color: #fff; mix-blend-mode: difference; }
+.possibility--quality > * { position: relative; z-index: 1; color: var(--paper); }
 @keyframes quality-border-orbit { to { --quality-angle: 360deg; } }
 .possibility--quality:hover { transform: translateY(-.3rem); }
 .possibility--call { display: grid; width: min(100%, 15rem); aspect-ratio: 1; place-content: center; justify-self: end; border: 1px solid var(--ink); border-radius: 50%; background: var(--paper); font-family: var(--font-serif); font-size: clamp(1.2rem, 2.2vw, 1.9rem); text-align: center; transition: background .25s ease, color .25s ease, transform .25s var(--ease); }
@@ -490,7 +473,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .site-header__inner { grid-template-columns: 1fr 7rem 1fr; }
   .desktop-nav { gap: 1.5rem; }.desktop-nav--left { padding-right: 1rem; }.desktop-nav--right { padding-left: 1rem; }
   .hero__inner { grid-template-columns: minmax(15rem,.65fr) minmax(0,1.35fr); gap: 1.5rem; }
-  .project-carousel { --carousel-card-width: clamp(11.5rem, 19vw, 13.5rem); --carousel-radius: clamp(15.5rem, 28vw, 19rem); --carousel-tilt: -18deg; --carousel-perspective: 54rem; }
+  .project-carousel { --carousel-card-width: clamp(13.5rem, 23vw, 16rem); --carousel-radius: clamp(8.5rem, 14vw, 10.5rem); --carousel-tilt: -7deg; --carousel-perspective: 66rem; }
   .possibilities-grid { grid-template-columns: 1fr 1fr; }
   .spark-star { grid-column: 2; grid-row: 1; }.possibility--quality { grid-column: 1; }.possibility--call { grid-column: 2; grid-row: 2; justify-self: center; }
   .site-footer__grid { grid-template-columns: 1.4fr repeat(3,1fr); gap: 2rem; }
@@ -502,15 +485,14 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
   .site-header__inner { display: flex; justify-content: space-between; }
   .desktop-nav { display: none; }.brand-logo--header { width: 6.2rem; height: 3.8rem; margin-left: -.5rem; background-position: left center; }.menu-trigger { display: flex; }
   .section-heading { gap: 1rem; margin-bottom: 2.4rem; }.section-heading--with-controls { grid-template-columns: auto 1fr; }.section-heading--with-controls .scroller-controls { grid-column: 1 / -1; justify-self: end; }
-  .hero { min-height: auto; padding-top: 3rem; }
+  .hero { min-height: auto; padding-top: 2rem; padding-bottom: 2.5rem; }
   .hero__inner { display: block; }
   .hero__brand { margin-bottom: 2.5rem; }
   .brand-logo--hero { width: min(100%, 24rem); aspect-ratio: 1.7; }
   .hero__title { font-size: .68rem; }
   .hero__claim { font-size: clamp(1.5rem, 8vw, 2rem); }
-  .project-carousel { --carousel-card-width: min(43vw, 10.75rem); --carousel-radius: min(46vw, 11.5rem); --carousel-tilt: -16deg; --carousel-perspective: 40rem; width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
-  .carousel-hint { top: .4rem; max-width: calc(100% - 2rem); overflow: hidden; text-overflow: ellipsis; }
-  .project-carousel__stage { height: 31rem; }
+  .project-carousel { --carousel-card-width: min(58vw, 14rem); --carousel-radius: min(32vw, 8rem); --carousel-tilt: -6deg; --carousel-perspective: 52rem; width: 100vw; margin-left: calc((var(--page) - 100vw) / 2); }
+  .project-carousel__stage { height: 25rem; }
   .project-carousel__controls { width: calc(100% - 2.5rem); margin-top: -.5rem; }
   .project-entry__grid { grid-template-columns: 1fr; }
   .project-entry__column { padding-right: 0; }.project-entry__column--quick { margin-top: 3rem; padding: 3rem 0 0; border-top: 1px solid var(--ink); border-left: 0; }
@@ -531,7 +513,7 @@ dialog::backdrop { background: rgba(11,11,11,.46); backdrop-filter: blur(3px); }
 @media (max-width: 25rem) {
   :root { --page: calc(100% - 2rem); }
   .hero__claim span { padding-inline: .25em; }
-  .project-carousel { --carousel-card-width: 9.5rem; --carousel-radius: 10rem; --carousel-tilt: -15deg; --carousel-perspective: 36rem; }
+  .project-carousel { --carousel-card-width: 11rem; --carousel-radius: 6rem; --carousel-tilt: -5deg; --carousel-perspective: 46rem; }
   .carousel-dots { gap: .2rem; }.carousel-dot { width: 1rem; }
   .offer-box__start { min-height: 11rem; flex-direction: column; gap: 1rem; }.offer-wizard { padding: 1rem; }
   .site-footer__grid { grid-template-columns: 1fr; }.brand-logo--footer, .site-footer__grid > div:last-child { grid-column: auto; }
