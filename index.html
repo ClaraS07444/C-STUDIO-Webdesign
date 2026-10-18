@@ -70,10 +70,9 @@
   <main id="main-content">
     <!-- ==============================================================
          01 · HERO UND 6-TEILIGES 3D-KARUSSELL
-         WICHTIG: Die sechs Karten enthalten ausschließlich Bildflächen.
-         Zum Austausch je .website-shot durch ein <img> oder <picture>
-         ersetzen. Vorder- und Rückfläche verwenden dasselbe Bild, damit
-         hintere Karten nie spiegelverkehrt erscheinen.
+         WICHTIG: Die sechs Karten enthalten ausschließlich Projektbilder.
+         Vorder- und Rückfläche verwenden dasselbe Bild, damit hintere
+         Karten nie spiegelverkehrte Inhalte zeigen.
          ============================================================== -->
     <section class="hero" id="home" aria-labelledby="hero-title">
       <div class="hero__inner page-shell">
@@ -84,92 +83,49 @@
         </div>
 
         <!-- ============================================================
-             HERO-KARUSSELL · Verbindliche Struktur aus der Nutzervorlage
-             Technisch notwendige Abweichung: Die Karten bleiben semantische
-             <article>-Elemente ohne Link, weil noch keine sechs finalen
-             Projektziele festgelegt sind. Sichtbar enthalten sie nur Bilder.
-             3D-FIX: opacity/filter dürfen nicht auf article.project-card
-             liegen, da sie sonst den preserve-3d-Kontext abflachen. Zustands-
-             Opacity wird ausschließlich auf Front- und Rückfläche gesetzt.
-             MOCKUP-GEOMETRIE: Ein kompakter translateZ-Radius staffelt die
-             sechs reinen Bildkarten überlappend hinter der Vorderkarte.
-             Der Bedienhinweis bleibt ausschließlich für Screenreader.
+             ERSTE C-AGENCY-KARUSSELLIMPLEMENTIERUNG (wiederhergestellt)
+             Dieses System verwendet die ursprünglichen Selektoren
+             data-carousel / carousel-viewport / carousel-ring /
+             carousel-card / carousel-face und die damalige zentrale
+             initProjectCarousel()-Logik. Die Karten zeigen nur Bilder.
              ============================================================ -->
-        <section class="project-carousel" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
-          <p class="sr-only carousel-hint" id="carousel-hint">Ziehen, wischen oder mit den Pfeiltasten navigieren</p>
-
-          <div class="project-carousel__stage" aria-describedby="carousel-hint">
-            <div class="project-carousel__ring">
-              <article class="project-card" style="--card-index: 0;" aria-label="Projekt 1 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/freiheit-reisen.webp" alt="Websiteansicht Freiheit Reisen" width="1200" height="750" decoding="async" fetchpriority="high" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/freiheit-reisen.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
-
-              <article class="project-card" style="--card-index: 1;" aria-label="Projekt 2 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/coach-dich-leicht.webp" alt="Websiteansicht Coach dich leicht" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/coach-dich-leicht.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
-
-              <article class="project-card" style="--card-index: 2;" aria-label="Projekt 3 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/projekt-5.webp" alt="Websiteansicht Projekt 5" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/projekt-5.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
-
-              <article class="project-card" style="--card-index: 3;" aria-label="Projekt 4 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/projekt-6.webp" alt="Websiteansicht Projekt 6" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/projekt-6.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
-
-              <article class="project-card" style="--card-index: 4;" aria-label="Projekt 5 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/glow-studio.webp" alt="Websiteansicht Glow Studio" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/glow-studio.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
-
-              <article class="project-card" style="--card-index: 5;" aria-label="Projekt 6 von 6">
-                <div class="project-card__front">
-                  <img src="assets/projects/puls.webp" alt="Websiteansicht PULS Krankenfahrdienst" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-                <div class="project-card__back" aria-hidden="true">
-                  <img src="assets/projects/puls.webp" alt="" width="1200" height="750" decoding="async" draggable="false">
-                </div>
-              </article>
+        <div class="project-carousel" data-carousel role="region" aria-roledescription="Karussell" aria-label="Sechs Website-Projekte" tabindex="0">
+          <p class="sr-only" id="carousel-help">Mit Pfeiltasten, Wischgeste, horizontalem Trackpad oder den Steuerelementen durch sechs Websitebilder navigieren.</p>
+          <div class="carousel-viewport" aria-describedby="carousel-help">
+            <div class="carousel-ring" data-carousel-ring>
+              <a class="carousel-card" href="#project-01" data-carousel-card aria-label="Websiteprojekt Freiheit Reisen ansehen">
+                <span class="carousel-face"><img src="assets/projects/freiheit-reisen.webp" alt="" width="1200" height="750" decoding="async" fetchpriority="high" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/freiheit-reisen.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
+              <a class="carousel-card carousel-card--02" href="#project-02" data-carousel-card aria-label="Websiteprojekt Coach dich leicht ansehen">
+                <span class="carousel-face"><img src="assets/projects/coach-dich-leicht.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/coach-dich-leicht.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
+              <a class="carousel-card carousel-card--03" href="#project-03" data-carousel-card aria-label="Websiteprojekt 5 ansehen">
+                <span class="carousel-face"><img src="assets/projects/projekt-5.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/projekt-5.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
+              <a class="carousel-card carousel-card--04" href="#concept-01" data-carousel-card aria-label="Websiteprojekt 6 ansehen">
+                <span class="carousel-face"><img src="assets/projects/projekt-6.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/projekt-6.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
+              <a class="carousel-card carousel-card--05" href="#concept-02" data-carousel-card aria-label="Websiteprojekt Glow Studio ansehen">
+                <span class="carousel-face"><img src="assets/projects/glow-studio.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/glow-studio.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
+              <a class="carousel-card carousel-card--06" href="#concept-03" data-carousel-card aria-label="Websiteprojekt PULS ansehen">
+                <span class="carousel-face"><img src="assets/projects/puls.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+                <span class="carousel-face carousel-face--back" aria-hidden="true"><img src="assets/projects/puls.webp" alt="" width="1200" height="750" decoding="async" draggable="false"></span>
+              </a>
             </div>
           </div>
-
-          <div class="project-carousel__controls" aria-label="Karussellsteuerung">
-            <button class="carousel-arrow carousel-arrow--previous" type="button" aria-label="Vorheriges Projekt">←</button>
-            <div class="carousel-dots" aria-label="Projekt auswählen">
-              <button class="carousel-dot is-active" type="button" aria-label="Projekt 1 anzeigen" aria-current="true"></button>
-              <button class="carousel-dot" type="button" aria-label="Projekt 2 anzeigen" aria-current="false"></button>
-              <button class="carousel-dot" type="button" aria-label="Projekt 3 anzeigen" aria-current="false"></button>
-              <button class="carousel-dot" type="button" aria-label="Projekt 4 anzeigen" aria-current="false"></button>
-              <button class="carousel-dot" type="button" aria-label="Projekt 5 anzeigen" aria-current="false"></button>
-              <button class="carousel-dot" type="button" aria-label="Projekt 6 anzeigen" aria-current="false"></button>
-            </div>
-            <button class="carousel-arrow carousel-arrow--next" type="button" aria-label="Nächstes Projekt">→</button>
+          <div class="carousel-controls" aria-label="Karussellsteuerung">
+            <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Vorheriges Websitebild">←</button>
+            <div class="carousel-dots" data-carousel-dots aria-label="Websitebild auswählen"></div>
+            <button class="carousel-arrow" type="button" data-carousel-next aria-label="Nächstes Websitebild">→</button>
           </div>
-          <p class="sr-only project-carousel__status" aria-live="polite">Projekt 1 von 6</p>
-        </section>
+          <p class="sr-only" data-carousel-status aria-live="polite"></p>
+        </div>
       </div>
     </section>
 
